@@ -23,10 +23,11 @@
       :code
       `(with-compilation-unit
 	   (include <fstream>)
+	 (include <algorithm>)
 	 (include "mandelbrot_ispc.h")
 	   (function (main ()
 			   int)
-	    (let ((width :type "unsigned int" :init ,width)
+	    (let ((width :type "const unsigned int" :init ,width)
 		  (height :type "unsigned int" :init 512)
 		  (x0 :type float :init -2.0)
 		  (x1 :type float :init 1.0)
@@ -41,10 +42,14 @@
 						    (|\|| "std::ofstream::out"
 							  "std::ofstream::binary"
 							  "std::ofstream::trunc"))
+		       )
+		    (bufu8 :type "unsigned char*"  :ctor (new (aref "unsigned char" (* ,width height)))
 		       ))
-		(<< f (string "P5\\n") height  (string " ")  width  (string "\\n255\\n"))
+		(dotimes (i (* width height))
+		  (setf (aref bufu8 i) (funcall "std::min" 255 (funcall "std::max" 0 (aref buf i)))))
+		(<< f (string "P5\\n") width (string " ")  height  (string "\\n255\\n"))
 		
-		(funcall f.write (funcall reinterpret_cast<char*> buf) (* width height)))
+		(funcall f.write (funcall reinterpret_cast<char*> bufu8) (* width height)))
 	      (return 0))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-cpp-filename*))))
 
@@ -69,9 +74,10 @@
 			     "static inline int")
 	    (let ((z_re :type float :init c_re)
 		  (z_im :type float :init c_im)
-		  (count :type "const int" :init ,max-iterations)
+		  ;(count :type "const int" :init ,max-iterations)
 		  (ret :type int :init 0))
-	      (dotimes (i count)
+	      (dotimes (i ,max-iterations ;count
+			 )
 		(let ((re2 :type float :init (* z_re z_re))
 		      (im2 :type float :init (* z_im z_im)))
 		  (if (< 4.0 (+ re2 im2))
@@ -99,7 +105,7 @@
 		     (for ((j 0 :type "uniform int") (< j height) (+= j 1))
 		      (foreach (i 0 ,width)
 			       (let ((x :type float :init (+ x0 (* i dx)))
-				     (y :type float :init (+ y0 (* i dy)))
+				     (y :type float :init (+ y0 (* j dy)))
 				     (index :type int :init (+ i (* j ,width)))
 				     )
 				 (setf (aref output index) (funcall mandel x y #+nil max_iterations))))))))))
