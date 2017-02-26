@@ -8,7 +8,8 @@
 
 
 (let ((max-iterations 256)
-      (width 768))
+      (width 768)
+      (height 512))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc/source/main.cpp"
 						       (user-homedir-pathname)))
@@ -30,7 +31,7 @@
 	   (function (main ()
 			   int)
 	    (let ((width :type "const unsigned int" :init ,width)
-		  (height :type "const unsigned int" :init 512)
+		  (height :type "const unsigned int" :init ,height)
 		  (x0 :type float :init -2.0)
 		  (x1 :type float :init 1.0)
 		  (y0 :type float :init -1.0)
@@ -42,10 +43,11 @@
 		       :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
 		       ;:ctor (new (aref int (* ,width height)))
 		       ))
-	      (if (== nullptr buf)
+	      #+nil (if (== nullptr buf)
 		  (<< "std::cout" (string "error getting aligned buffer")))
-	      (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width height buf)
-	      (let ((f :type "std::ofstream" :ctor (comma-list
+	      (dotimes (i 100) 
+		(funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf))
+	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
 						    (|\|| "std::ofstream::out"
 							  "std::ofstream::binary"
@@ -103,14 +105,13 @@
 				     (x1 :type "uniform float")
 				     (y1 :type "uniform float")
 				     ;(width :type "uniform int")
-				     (height :type "uniform int")
+				     ;(height :type "uniform int")
 				     ;(max_iterations :type "uniform int")
 				     (output[] :type "uniform int"))
 				    "export void")
-		   (let ((dx :type float :init (/ (- x1 x0) ,width))
-			 (dy :type float :init (/ (- y1 y0) height))
-			 )
-		     (for ((j 0 :type "uniform int") (< j height) (+= j 1))
+		   (let ((dx :type float :init (* (- x1 x0) (/ 1.0 ,width)))
+			 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height))))
+		     (for ((j 0 :type "uniform int") (< j ,height) (+= j 1))
 		      (foreach (i 0 ,width)
 			       (let ((x :type float :init (+ x0 (* i dx)))
 				     (y :type float :init (+ y0 (* j dy)))

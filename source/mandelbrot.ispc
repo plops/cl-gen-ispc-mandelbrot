@@ -30,12 +30,12 @@ static inline int mandel(float c_re, float c_im) {
 
 export void mandelbrot_ispc(uniform float x0, uniform float y0,
                             uniform float x1, uniform float y1,
-                            uniform int height, uniform int output[]) {
+                            uniform int output[]) {
   {
-    float dx = ((x1 - x0) / 768);
-    float dy = ((y1 - y0) / height);
+    float dx = ((x1 - x0) * ((1.e+0) / 768));
+    float dy = ((y1 - y0) * ((1.e+0) / 512));
 
-    for (uniform int j = 0; (j < height); j += 1) {
+    for (uniform int j = 0; (j < 512); j += 1) {
       foreach (i = 0 ... 768) {
         {
           float x = (x0 + (i * dx));

@@ -13,23 +13,8 @@ int main() {
     float y1 = (1.e+0);
     static int buf[(width * height)] __attribute__((aligned(64)));
 
-    if ((nullptr == buf)) {
-      (std::cout << "error getting aligned buffer");
-    }
-
-    ispc::mandelbrot_ispc(x0, y0, x1, y1, height, buf);
-    {
-      std::ofstream f(
-          "/dev/shm/test.pgm",
-          (std::ofstream::out | std::ofstream::binary | std::ofstream::trunc));
-      unsigned char *bufu8(new unsigned char[(768 * height)]);
-
-      for (int i = 0; (i < (width * height)); i += 1) {
-        bufu8[i] = std::min(255, std::max(0, buf[i]));
-      }
-
-      (f << "P5\n" << width << " " << height << "\n255\n");
-      f.write(reinterpret_cast<char *>(bufu8), (width * height));
+    for (int i = 0; (i < 100); i += 1) {
+      ispc::mandelbrot_ispc(x0, y0, x1, y1, buf);
     }
 
     return 0;
