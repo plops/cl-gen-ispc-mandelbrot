@@ -34,6 +34,12 @@
 	 (include <iostream>)
 	 (include "mandelbrot_ispc.h")
 	 (include <stdint.h>)
+	 (extern-c
+	  (function (ISPCInstrument ((fn :type "const char*")
+				     (note :type "const char*")
+				     (line :type int)
+				     (mask :type uint64_t)) void)
+		    (macroexpand (e fn (string ":") line (string " - ") note (string ", 0x") |STD::HEX| mask ))))
 	 (function (rdtsc () uint64_t)
 		   (let ((low :type uint32_t)
 			 (high :type uint32_t))
@@ -52,14 +58,14 @@
 		  (y1 :type float :init 1.0)
 		  ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
 		  ;; buf should be aligned to 64 byte boundary
-		  ((aref buf (* width height)) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
+		  ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
 		 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
 		       :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
 		       ;:ctor (new (aref int (* ,width height)))
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 100)
+	      (dotimes (i 1)
 		(let ((start :init (funcall rdtsc)))
 		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)

@@ -4,6 +4,13 @@
 #include <iostream>
 #include "mandelbrot_ispc.h"
 #include <stdint.h>
+extern "C" {
+void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
+  (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
+             << std::endl);
+}
+} // extern "C"
+
 uint64_t rdtsc() {
   {
     uint32_t low;
@@ -24,9 +31,9 @@ int main() {
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    static int buf[(width * height)] __attribute__((aligned(64)));
+    static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (int i = 0; (i < 100); i += 1) {
+    for (int i = 0; (i < 1); i += 1) {
       {
         auto start = rdtsc();
 
