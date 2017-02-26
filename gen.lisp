@@ -14,7 +14,8 @@
 
 (let ((max-iterations 256)
       (width 768)
-      (height 512))
+      (height 512)
+      (grain 100))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc/source/main.cpp"
 						       (user-homedir-pathname)))
@@ -34,6 +35,7 @@
 	 (include <iostream>)
 	 (include "mandelbrot_ispc.h")
 	 (include <stdint.h>)
+	 (include <tbb/tbb.h>)
 	 (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
@@ -67,7 +69,11 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      (dotimes (i 1)
 		(let ((start :init (funcall rdtsc)))
-		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+		  (funcall "tbb::parallel_for"
+			   (funcall "tbb::blocked_range2d<int>"
+				    0 ,width ,grain
+				    0 ,height ,grain))
 		  (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 						 (* 1024.0 1024.0))))))
 	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list

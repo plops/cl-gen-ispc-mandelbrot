@@ -4,6 +4,7 @@
 #include <iostream>
 #include "mandelbrot_ispc.h"
 #include <stdint.h>
+#include <tbb/tbb.h>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
