@@ -22,10 +22,11 @@
       :clear-env t
       :code
       `(with-compilation-unit
-	   (include "mandelbrot_ispc.h")
+	   (include <fstream>)
+	 (include "mandelbrot_ispc.h")
 	   (function (main ()
 			   int)
-	    (let (;(width :type "unsigned int" :init 768)
+	    (let ((width :type "unsigned int" :init ,width)
 		  (height :type "unsigned int" :init 512)
 		  (x0 :type float :init -2.0)
 		  (x1 :type float :init 1.0)
@@ -35,6 +36,15 @@
 		       :ctor (new (aref int (* ,width height)))
 		       ))
 	      (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width height buf)
+	      (let ((f :type "std::ofstream" :ctor (comma-list
+						    (string "/dev/shm/test.pgm")
+						    (|\|| "std::ofstream::out"
+							  "std::ofstream::binary"
+							  "std::ofstream::trunc"))
+		       ))
+		(<< f (string "P5\\n") height  (string " ")  width  (string "\\n255\\n"))
+		
+		(funcall f.write (funcall reinterpret_cast<char*> buf) (* width height)))
 	      (return 0))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-cpp-filename*))))
 
