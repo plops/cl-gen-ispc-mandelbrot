@@ -3,6 +3,19 @@
 #include <type_traits>
 #include <iostream>
 #include "mandelbrot_ispc.h"
+#include <stdint.h>
+uint64_t rdtsc() {
+  {
+    uint32_t low;
+    uint32_t high;
+
+    __asm__ __volatile__("xorl %%eax,%%eax \n cpuid" ::
+                             : "%rax", "%rbx", "%rcx", "%rdx");
+    __asm__ __volatile__("rdtsc" : "=a"(low), "=d"(high));
+    return ((static_cast<uint64_t>(high) << 32) | low);
+  }
+}
+
 int main() {
   {
     const unsigned int width = 768;
@@ -14,7 +27,14 @@ int main() {
     static int buf[(width * height)] __attribute__((aligned(64)));
 
     for (int i = 0; (i < 100); i += 1) {
-      ispc::mandelbrot_ispc(x0, y0, x1, y1, buf);
+      {
+        auto start = rdtsc();
+
+        ispc::mandelbrot_ispc(x0, y0, x1, y1, buf);
+        (std::cout << "mcycles: "
+                   << ((rdtsc() - start) / ((1.024e+3) * (1.024e+3)))
+                   << std::endl);
+      }
     }
 
     return 0;

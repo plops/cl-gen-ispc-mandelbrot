@@ -6,6 +6,11 @@
 
 (in-package :cl-cpp-generator)
 
+(defmacro e (&body body)
+  `(statements (<< "std::cout" ,@(loop for e in body collect
+                                      (cond ((stringp e) `(string ,e))
+                                            (t e))) "std::endl")))
+
 
 (let ((max-iterations 256)
       (width 768)
@@ -28,6 +33,15 @@
 	 (include <type_traits>)
 	 (include <iostream>)
 	 (include "mandelbrot_ispc.h")
+	 (include <stdint.h>)
+	 (function (rdtsc () uint64_t)
+		   (let ((low :type uint32_t)
+			 (high :type uint32_t))
+		     (raw "__asm__ __volatile__ (\"xorl %%eax,%%eax \\n cpuid\"
+::: \"%rax\", \"%rbx\", \"%rcx\", \"%rdx\" )")
+		     (raw "__asm__ __volatile__ (\"rdtsc\" : \"=a\" (low), \"=d\" (high)) ")
+		     (return (|\|| (<< (funcall static_cast<uint64_t> high) 32)
+				   low))))
 	   (function (main ()
 			   int)
 	    (let ((width :type "const unsigned int" :init ,width)
@@ -44,9 +58,12 @@
 		       ;:ctor (new (aref int (* ,width height)))
 		       ))
 	      #+nil (if (== nullptr buf)
-		  (<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 100) 
-		(funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf))
+			(<< "std::cout" (string "error getting aligned buffer")))
+	      (dotimes (i 100)
+		(let ((start :init (funcall rdtsc)))
+		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+		  (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
+						 (* 1024.0 1024.0))))))
 	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
 						    (|\|| "std::ofstream::out"
