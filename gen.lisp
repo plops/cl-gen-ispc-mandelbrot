@@ -24,6 +24,8 @@
       `(with-compilation-unit
 	   (include <fstream>)
 	 (include <algorithm>)
+	 (include <type_traits>)
+	 (include <iostream>)
 	 (include "mandelbrot_ispc.h")
 	   (function (main ()
 			   int)
@@ -34,8 +36,11 @@
 		  (y0 :type float :init -1.0)
 		  (y1 :type float :init 1.0)
 		  (buf :type "int*" ;"std::unique_ptr< int >"
+		       ;:init (funcall reinterpret_cast<int*> (funcall aligned_alloc 64   (/ (* 64 (* ,width height))		 64)))
 		       :ctor (new (aref int (* ,width height)))
 		       ))
+	      (if (== nullptr buf)
+		  (<< "std::cout" (string "error getting aligned buffer")))
 	      (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width height buf)
 	      (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
