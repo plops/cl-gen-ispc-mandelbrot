@@ -6,12 +6,12 @@
 int main() {
   {
     const unsigned int width = 768;
-    unsigned int height = 512;
+    const unsigned int height = 512;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    int *buf(new int[(768 * height)]);
+    static int buf[(width * height)] __attribute__((aligned(64)));
 
     if ((nullptr == buf)) {
       (std::cout << "error getting aligned buffer");

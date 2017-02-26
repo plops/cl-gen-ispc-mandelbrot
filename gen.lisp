@@ -30,14 +30,17 @@
 	   (function (main ()
 			   int)
 	    (let ((width :type "const unsigned int" :init ,width)
-		  (height :type "unsigned int" :init 512)
+		  (height :type "const unsigned int" :init 512)
 		  (x0 :type float :init -2.0)
 		  (x1 :type float :init 1.0)
 		  (y0 :type float :init -1.0)
 		  (y1 :type float :init 1.0)
-		  (buf :type "int*" ;"std::unique_ptr< int >"
-		       ;:init (funcall reinterpret_cast<int*> (funcall aligned_alloc 64   (/ (* 64 (* ,width height))		 64)))
-		       :ctor (new (aref int (* ,width height)))
+		  ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
+		  ;; buf should be aligned to 64 byte boundary
+		  ((aref buf (* width height)) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
+		 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
+		       :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
+		       ;:ctor (new (aref int (* ,width height)))
 		       ))
 	      (if (== nullptr buf)
 		  (<< "std::cout" (string "error getting aligned buffer")))
