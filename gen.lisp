@@ -17,7 +17,7 @@
       (height 512)
       (grain 100))
   (progn
-   (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc/source/main.cpp"
+   (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
 						       (user-homedir-pathname)))
   
    (with-open-file (s *main-cpp-filename*
@@ -67,14 +67,14 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 1)
-		(let ((start :init (funcall rdtsc)))
-		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-		  (funcall "tbb::parallel_for"
+	      (dotimes (i 100)
+		(let ()#+nil ((start :init (funcall rdtsc)))
+		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+		  #+nil (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int>"
 				    0 ,width ,grain
 				    0 ,height ,grain))
-		  (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
+		  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 						 (* 1024.0 1024.0))))))
 	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
@@ -93,7 +93,7 @@
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-cpp-filename*))))
 
   (progn
-   (defparameter *main-ispc-filename*  (merge-pathnames "stage/cl-gen-ispc/source/mandelbrot.ispc"
+   (defparameter *main-ispc-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/mandelbrot.ispc"
 						       (user-homedir-pathname)))
   
    (with-open-file (s *main-ispc-filename*

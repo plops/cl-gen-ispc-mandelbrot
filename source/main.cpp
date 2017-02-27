@@ -1,10 +1,10 @@
-#include <fstream>
-#include <algorithm>
-#include <type_traits>
-#include <iostream>
 #include "mandelbrot_ispc.h"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <stdint.h>
 #include <tbb/tbb.h>
+#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -34,15 +34,8 @@ int main() {
     float y1 = (1.e+0);
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (int i = 0; (i < 1); i += 1) {
-      {
-        auto start = rdtsc();
-
-        ispc::mandelbrot_ispc(x0, y0, x1, y1, buf);
-        (std::cout << "mcycles: "
-                   << ((rdtsc() - start) / ((1.024e+3) * (1.024e+3)))
-                   << std::endl);
-      }
+    for (int i = 0; (i < 100); i += 1) {
+      { ispc::mandelbrot_ispc(x0, y0, x1, y1, buf); }
     }
 
     return 0;
