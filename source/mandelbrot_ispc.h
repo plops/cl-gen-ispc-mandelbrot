@@ -9,14 +9,6 @@
 
 #include <stdint.h>
 
-#define ISPC_INSTRUMENTATION 1
-#if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
-extern "C" {
-#endif // __cplusplus
-  void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask);
-#if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
-} /* end extern C */
-#endif // __cplusplus
 
 
 #ifdef __cplusplus
