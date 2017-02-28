@@ -4,7 +4,7 @@ static inline int mandel(float c_re, float c_im) {
     float z_im = c_im;
     int ret = 0;
 
-    for (int i = 0; (i < 256); i += 1) {
+    for (int i = 0; (i < 2048); i += 1) {
       {
         float re2 = (z_re * z_re);
         float im2 = (z_im * z_im);
@@ -15,7 +15,7 @@ static inline int mandel(float c_re, float c_im) {
         }
 
         {
-          float new_re = (re2 - im2);
+          float new_re = ((z_re * z_re) - (z_im * z_im));
           float new_im = ((2.e+0) * z_re * z_im);
 
           z_re = (c_re + new_re);
@@ -32,15 +32,15 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
                             uniform float x1, uniform float y1,
                             uniform int output[]) {
   {
-    float dx = ((x1 - x0) * ((1.e+0) / 768));
-    float dy = ((y1 - y0) * ((1.e+0) / 512));
+    float dx = ((x1 - x0) * ((1.e+0) / 64));
+    float dy = ((y1 - y0) * ((1.e+0) / 2048));
 
-    for (uniform int j = 0; (j < 512); j += 1) {
-      foreach (i = 0 ... 768) {
+    for (uniform int j = 0; (j < 2048); j += 1) {
+      foreach (i = 0 ... 64) {
         {
           float x = (x0 + (i * dx));
           float y = (y0 + (j * dy));
-          int index = (i + (j * 768));
+          int index = (i + (j * 64));
 
           output[index] = mandel(x, y);
         }

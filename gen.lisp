@@ -12,9 +12,11 @@
                                             (t e))) "std::endl")))
 
 
-(let ((max-iterations 256)
-      (width 768)
-      (height 512)
+(let ((max-iterations 2048)
+      (width 64 ; 768
+	     )
+      (height 2048 ; 512
+	)
       (grain 100))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
@@ -67,7 +69,7 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 100)
+	      (dotimes (i 900)
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  #+nil (funcall "tbb::parallel_for"
@@ -123,7 +125,7 @@
 		      (statements
 		       (setf ret i)
 		       (break)))
-		  (let ((new_re :type float :init (- re2 im2))
+		  (let ((new_re :type float :init (- (* z_re z_re) (* z_im z_im)))
 
 			(new_im :type float :init (* 2.0 z_re z_im)))
 		    (setf z_re (+ c_re new_re)

@@ -26,15 +26,15 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    const unsigned int width = 768;
-    const unsigned int height = 512;
+    const unsigned int width = 64;
+    const unsigned int height = 2048;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (int i = 0; (i < 100); i += 1) {
+    for (int i = 0; (i < 900); i += 1) {
       { ispc::mandelbrot_ispc(x0, y0, x1, y1, buf); }
     }
 
