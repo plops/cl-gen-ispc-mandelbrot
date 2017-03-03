@@ -58,6 +58,8 @@
 		  (x1 :type float :init 1.0)
 		  (y0 :type float :init -1.0)
 		  (y1 :type float :init 1.0)
+		  (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
+		  (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
 		  ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
 		  ;; buf should be aligned to 64 byte boundary
 		  ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
@@ -69,11 +71,22 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      (dotimes (i 100)
 		(let ()#+nil ((start :init (funcall rdtsc)))
-		  (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-		  #+nil (funcall "tbb::parallel_for"
+		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+		  (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int>"
 				    0 ,width ,grain
-				    0 ,height ,grain))
+				    0 ,height ,grain)1
+			   (lambda (((r :type "const tbb::blocked_range2d<int>&")) :captures ("="))
+			     	 ;; x0 y0 dx dy o rs cs re ce
+			     (funcall "ispc::mandelbrot_ispc"
+				      x0 y0
+				      dx dy
+				      buf
+				      (funcall (slot-value (funcall  r.rows) begin))
+				      (funcall (slot-value (funcall  r.cols) begin))
+				      (funcall (slot-value (funcall  r.rows) end))
+				      (funcall (slot-value (funcall  r.cols) end))
+				      )))
 		  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 						 (* 1024.0 1024.0))))))
 	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
@@ -129,27 +142,33 @@
 		    (setf z_re (+ c_re new_re)
 			  z_im (+ c_im new_im)))))
 	      (return ret)))
+	 ;; x0 y0 dx dy o rs cs re ce
 	 (function (mandelbrot_ispc ((x0 :type "uniform float")
 				     (y0 :type "uniform float")
-				     (x1 :type "uniform float")
-				     (y1 :type "uniform float")
-				     ;(width :type "uniform int")
+
+				     (dx :type "uniform float")
+				     (dy :type "uniform float")
+					;(width :type "uniform int")
 				     ;(height :type "uniform int")
 				     ;(max_iterations :type "uniform int")
-				     (output[] :type "uniform int"))
+				     (output[] :type "uniform int")
+				     (output_row_start :type "uniform int")
+				     (output_col_start :type "uniform int")
+				     (output_row_end :type "uniform int")
+				     (output_col_end :type "uniform int"))
 				    "export void")
-		   (let ((dx :type float :init (* (- x1 x0) (/ 1.0 ,width)))
-			 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height))))
-		     (for ((j 0 :type "uniform int") (< j ,height) (+= j 1))
-		      (foreach (i 0 ,width)
-			       (let ((x :type float :init (+ x0 (* i dx)))
-				     (y :type float :init (+ y0 (* j dy)))
-				     (index :type int :init (+ i (* j ,width)))
-				     )
-				 (setf (aref output index) (funcall mandel x y #+nil max_iterations))))))))))
+		   (for ((j output_row_start :type "uniform int") (< j output_row_end) (+= j 1))
+			(foreach (i output_col_start output_col_end)
+				 (let ((x :type float :init (+ x0 (* i dx)))
+				       (y :type float :init (+ y0 (* j dy)))
+				       (index :type int :init (+ i (* j ,width)))
+				       )
+				   (setf (aref output index) (funcall mandel x y #+nil max_iterations)))))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-ispc-filename*)))))
 
 
 
-
+  #+nil
+((dx :type float :init (* (- x1 x0) (/ 1.0 ,width)))
+ (dy :type float :init (* (- y1 y0) (/ 1.0 ,height))))
 

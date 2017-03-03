@@ -1,10 +1,10 @@
-#include "mandelbrot_ispc.h"
-#include <algorithm>
 #include <fstream>
+#include <algorithm>
+#include <type_traits>
 #include <iostream>
+#include "mandelbrot_ispc.h"
 #include <stdint.h>
 #include <tbb/tbb.h>
-#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -32,10 +32,21 @@ int main() {
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
+    float dx = ((x1 - x0) * ((1.e+0) / 768));
+    float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (int i = 0; (i < 100); i += 1) {
-      { ispc::mandelbrot_ispc(x0, y0, x1, y1, buf); }
+    for (unsigned int i = 0; (i < 100); i += 1) {
+      {
+
+        tbb::parallel_for(tbb::blocked_range2d<int>(0, 768, 100, 0, 512, 100),
+                          1, [=](const tbb::blocked_range2d<int> &r) {
+                            ispc::mandelbrot_ispc(
+                                x0, y0, dx, dy, buf, r.rows().begin(),
+                                r.cols().begin(), r.rows().end(),
+                                r.cols().end());
+                          });
+      }
     }
 
     return 0;

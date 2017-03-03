@@ -34,7 +34,7 @@ namespace ispc { /* namespace */
 #if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
 extern "C" {
 #endif // __cplusplus
-    extern void mandelbrot_ispc(float x0, float y0, float x1, float y1, int32_t * output);
+    extern void mandelbrot_ispc(float x0, float y0, float dx, float dy, int32_t * output, int32_t output_row_start, int32_t output_col_start, int32_t output_row_end, int32_t output_col_end);
 #if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
 } /* end extern C */
 #endif // __cplusplus
