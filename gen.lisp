@@ -13,7 +13,7 @@
 
 
 (let ((max-iterations 256)
-      (width 768)
+      (width 512)
       (height 512)
       (grain 100))
   (progn
@@ -69,7 +69,7 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 100)
+	      (dotimes (i 900)
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  (funcall "tbb::parallel_for"
@@ -89,7 +89,7 @@
 				      )))
 		  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 						 (* 1024.0 1024.0))))))
-	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
+	      (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
 						    (|\|| "std::ofstream::out"
 							  "std::ofstream::binary"
@@ -136,7 +136,7 @@
 		      (statements
 		       (setf ret i)
 		       (break)))
-		  (let ((new_re :type float :init (- re2 im2))
+		  (let ((new_re :type float :init (- (* z_re z_re) (* z_im z_im)))
 
 			(new_im :type float :init (* 2.0 z_re z_im)))
 		    (setf z_re (+ c_re new_re)

@@ -26,27 +26,41 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    const unsigned int width = 768;
+    const unsigned int width = 512;
     const unsigned int height = 512;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    float dx = ((x1 - x0) * ((1.e+0) / 768));
+    float dx = ((x1 - x0) * ((1.e+0) / 512));
     float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (unsigned int i = 0; (i < 100); i += 1) {
+    for (unsigned int i = 0; (i < 900); i += 1) {
       {
 
         tbb::parallel_for(
-            tbb::blocked_range2d<int, int>(0, 768, 100, 0, 512, 100),
+            tbb::blocked_range2d<int, int>(0, 512, 100, 0, 512, 100),
             [=](const tbb::blocked_range2d<int, int> &r) {
               ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
                                     r.cols().begin(), r.rows().end(),
                                     r.cols().end());
             });
       }
+    }
+
+    {
+      std::ofstream f(
+          "/dev/shm/test.pgm",
+          (std::ofstream::out | std::ofstream::binary | std::ofstream::trunc));
+      unsigned char *bufu8(new unsigned char[(512 * height)]);
+
+      for (unsigned int i = 0; (i < (width * height)); i += 1) {
+        bufu8[i] = std::min(255, std::max(0, buf[i]));
+      }
+
+      (f << "P5\n" << width << " " << height << "\n255\n");
+      f.write(reinterpret_cast<char *>(bufu8), (width * height));
     }
 
     return 0;
