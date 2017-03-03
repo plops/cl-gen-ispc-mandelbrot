@@ -39,13 +39,13 @@ int main() {
     for (unsigned int i = 0; (i < 100); i += 1) {
       {
 
-        tbb::parallel_for(tbb::blocked_range2d<int>(0, 768, 100, 0, 512, 100),
-                          1, [=](const tbb::blocked_range2d<int> &r) {
-                            ispc::mandelbrot_ispc(
-                                x0, y0, dx, dy, buf, r.rows().begin(),
-                                r.cols().begin(), r.rows().end(),
-                                r.cols().end());
-                          });
+        tbb::parallel_for(
+            tbb::blocked_range2d<int, int>(0, 768, 100, 0, 512, 100),
+            [=](const tbb::blocked_range2d<int, int> &r) {
+              ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
+                                    r.cols().begin(), r.rows().end(),
+                                    r.cols().end());
+            });
       }
     }
 

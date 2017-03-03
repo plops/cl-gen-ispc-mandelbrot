@@ -73,10 +73,10 @@
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  (funcall "tbb::parallel_for"
-			   (funcall "tbb::blocked_range2d<int>"
+			   (funcall "tbb::blocked_range2d<int,int>"
 				    0 ,width ,grain
-				    0 ,height ,grain)1
-			   (lambda (((r :type "const tbb::blocked_range2d<int>&")) :captures ("="))
+				    0 ,height ,grain)
+			   (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
 			     	 ;; x0 y0 dx dy o rs cs re ce
 			     (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
