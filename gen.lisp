@@ -13,9 +13,9 @@
 
 
 (let ((max-iterations 256)
-      (width 512)
-      (height 512)
-      (grain 100))
+      (width 64)
+      (height 64)
+      (grain 16))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
 						       (user-homedir-pathname)))
@@ -78,6 +78,15 @@
 				    0 ,height ,grain)
 			   (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
 			     	 ;; x0 y0 dx dy o rs cs re ce
+			     (macroexpand (e "ispc::mandelbrot_ispc "
+				 "x0=" x0 " y0=" y0
+				 " dx=" dx " dy=" dy
+				 
+				 " rs=" (funcall (slot-value (funcall  r.rows) begin))
+				 " cs=" (funcall (slot-value (funcall  r.cols) begin))
+				 " re=" (funcall (slot-value (funcall  r.rows) end))
+				 " ce=" (funcall (slot-value (funcall  r.cols) end))
+				 ))
 			     (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy

@@ -39,7 +39,7 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
       {
         float x = (x0 + (i * dx));
         float y = (y0 + (j * dy));
-        int index = (i + (j * 512));
+        int index = (i + (j * 64));
 
         output[index] = mandel(x, y);
       }
