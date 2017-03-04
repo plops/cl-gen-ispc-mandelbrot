@@ -26,28 +26,22 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    const unsigned int width = 64;
-    const unsigned int height = 64;
+    const unsigned int width = 512;
+    const unsigned int height = 512;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    float dx = ((x1 - x0) * ((1.e+0) / 64));
-    float dy = ((y1 - y0) * ((1.e+0) / 64));
+    float dx = ((x1 - x0) * ((1.e+0) / 512));
+    float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (unsigned int i = 0; (i < 900); i += 1) {
+    for (unsigned int i = 0; (i < 100); i += 1) {
       {
 
         tbb::parallel_for(
-            tbb::blocked_range2d<int, int>(0, 64, 16, 0, 64, 16),
+            tbb::blocked_range2d<int, int>(0, 512, 4, 0, 512, 512),
             [=](const tbb::blocked_range2d<int, int> &r) {
-              (std::cout << "ispc::mandelbrot_ispc "
-                         << "x0=" << x0 << " y0=" << y0 << " dx=" << dx
-                         << " dy=" << dy << " rs=" << r.rows().begin() << " cs="
-                         << r.cols().begin() << " re=" << r.rows().end()
-                         << " ce=" << r.cols().end() << std::endl);
-
               ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
                                     r.cols().begin(), r.rows().end(),
                                     r.cols().end());
@@ -59,7 +53,7 @@ int main() {
       std::ofstream f(
           "/dev/shm/test.pgm",
           (std::ofstream::out | std::ofstream::binary | std::ofstream::trunc));
-      unsigned char *bufu8(new unsigned char[(64 * height)]);
+      unsigned char *bufu8(new unsigned char[(512 * height)]);
 
       for (unsigned int i = 0; (i < (width * height)); i += 1) {
         bufu8[i] = std::min(255, std::max(0, buf[i]));

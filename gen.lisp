@@ -13,9 +13,10 @@
 
 
 (let ((max-iterations 256)
-      (width 64)
-      (height 64)
-      (grain 16))
+      (width 512)
+      (height 512)
+      (grain-rows 512)
+      (grain-cols 4))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
 						       (user-homedir-pathname)))
@@ -69,23 +70,20 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 900)
+	      (dotimes (i 100)
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int,int>"
-				    0 ,width ,grain
-				    0 ,height ,grain)
+				    0 ,width ,grain-cols
+				    0 ,height ,grain-rows)
 			   (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
 			     	 ;; x0 y0 dx dy o rs cs re ce
-			     (macroexpand (e "ispc::mandelbrot_ispc "
-				 "x0=" x0 " y0=" y0
-				 " dx=" dx " dy=" dy
-				 
-				 " rs=" (funcall (slot-value (funcall  r.rows) begin))
-				 " cs=" (funcall (slot-value (funcall  r.cols) begin))
-				 " re=" (funcall (slot-value (funcall  r.rows) end))
-				 " ce=" (funcall (slot-value (funcall  r.cols) end))
+			     #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
+				 " " (funcall (slot-value (funcall  r.cols) begin))
+				 " " (funcall (slot-value (funcall  r.rows) end))
+				 " " (funcall (slot-value (funcall  r.cols) end))
+				 ")"
 				 ))
 			     (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
