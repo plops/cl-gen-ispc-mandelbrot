@@ -9,7 +9,7 @@ Events shown:     Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
 Event sort order: Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
 Thresholds:       0.1 100 100 100 100 100 100 100 100
 Include dirs:     
-User annotated:   source/mandelbrot.ispc
+User annotated:   /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 Auto-annotation:  off
 
 --------------------------------------------------------------------------------
@@ -23,7 +23,65 @@ Auto-annotation:  off
 2,901,568,000     8     8 2,642,060     21     2 1,310,860 327,680 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
 
 --------------------------------------------------------------------------------
--- User-annotated source: source/mandelbrot.ispc
+-- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 --------------------------------------------------------------------------------
-  No information has been collected for source/mandelbrot.ispc
+         Ir I1mr ILmr        Dr D1mr DLmr        Dw    D1mw   DLmw 
+
+          .    .    .         .    .    .         .       .      .  static inline int mandel(float c_re, float c_im) {
+          .    .    .         .    .    .         .       .      .    {
+          .    .    .         .    .    .         .       .      .      float z_re = c_re;
+          .    .    .         .    .    .         .       .      .      float z_im = c_im;
+          .    .    .         .    .    .         .       .      .      int ret = 0;
+          .    .    .         .    .    .         .       .      .  
+867,200,140    1    1         0    0    0         0       0      0      for (unsigned int i = 0; (i < 256); i += 1) {
+          .    .    .         .    .    .         .       .      .        {
+192,128,600    0    0         0    0    0         0       0      0          float re2 = (z_re * z_re);
+192,128,600    0    0         0    0    0         0       0      0          float im2 = (z_im * z_im);
+          .    .    .         .    .    .         .       .      .  
+384,257,200    0    0         0    0    0         0       0      0          if (((4.e+0) < (re2 + im2))) {
+ 96,064,300    1    1         0    0    0         0       0      0            ret = i;
+385,221,500    0    0         0    0    0         0       0      0            break;
+          .    .    .         .    .    .         .       .      .          }
+          .    .    .         .    .    .         .       .      .  
+          .    .    .         .    .    .         .       .      .          {
+ 95,100,000    0    0         0    0    0         0       0      0            float new_re = ((z_re * z_re) - (z_im * z_im));
+285,300,000    0    0         0    0    0         0       0      0            float new_im = ((2.e+0) * z_re * z_im);
+          .    .    .         .    .    .         .       .      .  
+190,200,000    0    0         0    0    0         0       0      0            z_re = (c_re + new_re);
+190,200,000    0    0         0    0    0         0       0      0            z_im = (c_im + new_im);
+          .    .    .         .    .    .         .       .      .          }
+          .    .    .         .    .    .         .       .      .        }
+          .    .    .         .    .    .         .       .      .      }
+          .    .    .         .    .    .         .       .      .  
+          .    .    .         .    .    .         .       .      .      return ret;
+          .    .    .         .    .    .         .       .      .    }
+          .    .    .         .    .    .         .       .      .  }
+          .    .    .         .    .    .         .       .      .  
+          .    .    .         .    .    .         .       .      .  export void mandelbrot_ispc(uniform float x0, uniform float y0,
+          .    .    .         .    .    .         .       .      .                              uniform float dx, uniform float dy,
+          .    .    .         .    .    .         .       .      .                              uniform int output[], uniform int output_row_start,
+          .    .    .         .    .    .         .       .      .                              uniform int output_col_start,
+          .    .    .         .    .    .         .       .      .                              uniform int output_row_end,
+          .    .    .         .    .    .         .       .      .                              uniform int output_col_end) {
+     41,120    2    2    10,280    0    0        80       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
+          .    .    .         .    .    .         .       .      .      {
+     81,920    1    1    10,240    0    0         0       0      0        float y = (y0 + (j * dy));
+     30,720    0    0         0    0    0         0       0      0        unsigned int i0 = (j * 512);
+          .    .    .         .    .    .         .       .      .  
+  6,553,800    1    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
+          .    .    .         .    .    .         .       .      .          {
+ 13,107,280    1    1 1,310,740    0    0        20       0      0            float x = (x0 + (i * dx));
+          .    .    .         .    .    .         .       .      .            int index = (i + i0);
+          .    .    .         .    .    .         .       .      .  
+  3,952,820    1    1        80   21    2 1,310,760 327,680 16,384            output[index] = mandel(x, y);
+          .    .    .         .    .    .         .       .      .          }
+          .    .    .         .    .    .         .       .      .        }
+          .    .    .         .    .    .         .       .      .      }
+          .    .    .         .    .    .         .       .      .    }
+          .    .    .         .    .    .         .       .      .  }
+
+--------------------------------------------------------------------------------
+ Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw 
+--------------------------------------------------------------------------------
+100    0    0 84    0    0 88   99   91  percentage of events annotated
 
