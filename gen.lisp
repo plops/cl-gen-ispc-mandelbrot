@@ -15,8 +15,8 @@
 (let ((max-iterations 256)
       (width 512)
       (height 512)
-      (grain-rows 512)
-      (grain-cols 4))
+      (grain-rows 32)
+      (grain-cols 16))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
 						       (user-homedir-pathname)))

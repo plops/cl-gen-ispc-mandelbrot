@@ -15,12 +15,12 @@ Auto-annotation:  off
 --------------------------------------------------------------------------------
            Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw 
 --------------------------------------------------------------------------------
-2,904,813,710 5,299 3,653 3,525,593 26,915 7,500 1,685,956 334,200 19,819  PROGRAM TOTALS
+2,906,518,948 5,284 3,653 3,819,797 28,808 7,500 1,765,581 334,239 19,828  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
            Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw  file:function
 --------------------------------------------------------------------------------
-2,901,646,740    11     9 2,659,840      7     2 1,328,640 327,681 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+2,902,952,538    11     9 2,822,134    645     2 1,346,742 327,681 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
 
 --------------------------------------------------------------------------------
 -- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
@@ -63,17 +63,17 @@ Auto-annotation:  off
           .    .    .         .    .    .         .       .      .                              uniform int output_col_start,
           .    .    .         .    .    .         .       .      .                              uniform int output_row_end,
           .    .    .         .    .    .         .       .      .                              uniform int output_col_end) {
-     61,440    3    3    15,360    0    0    10,240       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
+    370,512    3    3    92,628    0    0    20,584       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
           .    .    .         .    .    .         .       .      .      {
-     81,920    0    0    10,240    2    0         0       0      0        float y = (y0 + (j * dy));
-     30,720    1    1         0    0    0         0       0      0        unsigned int i0 = (j * 512);
+    658,688    0    0    82,336    1    0         0       0      0        float y = (y0 + (j * dy));
+    247,008    1    1         0    0    0         0       0      0        unsigned int i0 = (j * 512);
           .    .    .         .    .    .         .       .      .  
-  6,579,200    1    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
+  6,605,060    1    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
           .    .    .         .    .    .         .       .      .          {
- 13,117,440    0    0 1,313,280    2    0     2,560       0      0            float x = (x0 + (i * dx));
+ 13,127,784    0    0 1,315,866    2    0     5,146       0      0            float x = (x0 + (i * dx));
           .    .    .         .    .    .         .       .      .            int index = (i + i0);
           .    .    .         .    .    .         .       .      .  
-  3,975,680    2    2    10,240    3    2 1,315,840 327,681 16,384            output[index] = mandel(x, y);
+  4,143,146    2    2    20,584  642    2 1,321,012 327,681 16,384            output[index] = mandel(x, y);
           .    .    .         .    .    .         .       .      .          }
           .    .    .         .    .    .         .       .      .        }
           .    .    .         .    .    .         .       .      .      }
@@ -83,5 +83,5 @@ Auto-annotation:  off
 --------------------------------------------------------------------------------
  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw 
 --------------------------------------------------------------------------------
-100    0    0 75    0    0 79   98   83  percentage of events annotated
+100    0    0 74    2    0 76   98   83  percentage of events annotated
 

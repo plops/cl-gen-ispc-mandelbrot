@@ -40,7 +40,7 @@ int main() {
       {
 
         tbb::parallel_for(
-            tbb::blocked_range2d<int, int>(0, 512, 4, 0, 512, 512),
+            tbb::blocked_range2d<int, int>(0, 512, 16, 0, 512, 32),
             [=](const tbb::blocked_range2d<int, int> &r) {
               ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
                                     r.cols().begin(), r.rows().end(),
