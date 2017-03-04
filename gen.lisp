@@ -70,7 +70,7 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
-	      (dotimes (i 100)
+	      (dotimes (i 20)
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		  (funcall "tbb::parallel_for"
