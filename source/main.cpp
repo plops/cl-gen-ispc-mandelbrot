@@ -37,30 +37,8 @@ int main() {
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
     for (unsigned int i = 0; (i < 20); i += 1) {
-      {
-
-        tbb::parallel_for(
-            tbb::blocked_range2d<int, int>(0, 512, 4, 0, 512, 512),
-            [=](const tbb::blocked_range2d<int, int> &r) {
-              ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
-                                    r.cols().begin(), r.rows().end(),
-                                    r.cols().end());
-            });
-      }
-    }
-
-    {
-      std::ofstream f(
-          "/dev/shm/test.pgm",
-          (std::ofstream::out | std::ofstream::binary | std::ofstream::trunc));
-      unsigned char *bufu8(new unsigned char[(512 * height)]);
-
-      for (unsigned int i = 0; (i < (width * height)); i += 1) {
-        bufu8[i] = std::min(255, std::max(0, buf[i]));
-      }
-
-      (f << "P5\n" << width << " " << height << "\n255\n");
-      f.write(reinterpret_cast<char *>(bufu8), (width * height));
+      ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
+      {}
     }
 
     return 0;

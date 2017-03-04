@@ -70,10 +70,19 @@
 		       ))
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
+	      
 	      (dotimes (i 20)
+		(funcall "ispc::mandelbrot_ispc"
+				      x0 y0
+				      dx dy
+				      buf
+				      0 0
+				      height
+				      width
+				      )
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-		  (funcall "tbb::parallel_for"
+		  #+nil (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int,int>"
 				    0 ,width ,grain-cols
 				    0 ,height ,grain-rows)
@@ -85,6 +94,7 @@
 				 " " (funcall (slot-value (funcall  r.cols) end))
 				 ")"
 				 ))
+
 			     (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy
@@ -96,7 +106,7 @@
 				      )))
 		  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 						 (* 1024.0 1024.0))))))
-	      (let ((f :type "std::ofstream" :ctor (comma-list
+	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 						    (string "/dev/shm/test.pgm")
 						    (|\|| "std::ofstream::out"
 							  "std::ofstream::binary"
