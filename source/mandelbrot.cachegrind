@@ -15,12 +15,12 @@ Auto-annotation:  off
 --------------------------------------------------------------------------------
            Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw 
 --------------------------------------------------------------------------------
-2,903,527,787 2,634 2,435 3,145,956 11,646 6,378 1,495,187 330,014 18,092  PROGRAM TOTALS
+2,904,813,710 5,299 3,653 3,525,593 26,915 7,500 1,685,956 334,200 19,819  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
            Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw  file:function
 --------------------------------------------------------------------------------
-2,901,568,000     8     8 2,642,060     21     2 1,310,860 327,680 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+2,901,646,740    11     9 2,659,840      7     2 1,328,640 327,681 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
 
 --------------------------------------------------------------------------------
 -- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
@@ -33,13 +33,13 @@ Auto-annotation:  off
           .    .    .         .    .    .         .       .      .      float z_im = c_im;
           .    .    .         .    .    .         .       .      .      int ret = 0;
           .    .    .         .    .    .         .       .      .  
-867,200,140    1    1         0    0    0         0       0      0      for (unsigned int i = 0; (i < 256); i += 1) {
+867,200,140    2    1         0    0    0         0       0      0      for (unsigned int i = 0; (i < 256); i += 1) {
           .    .    .         .    .    .         .       .      .        {
 192,128,600    0    0         0    0    0         0       0      0          float re2 = (z_re * z_re);
 192,128,600    0    0         0    0    0         0       0      0          float im2 = (z_im * z_im);
           .    .    .         .    .    .         .       .      .  
-384,257,200    0    0         0    0    0         0       0      0          if (((4.e+0) < (re2 + im2))) {
- 96,064,300    1    1         0    0    0         0       0      0            ret = i;
+384,257,200    2    1         0    0    0         0       0      0          if (((4.e+0) < (re2 + im2))) {
+ 96,064,300    0    0         0    0    0         0       0      0            ret = i;
 385,221,500    0    0         0    0    0         0       0      0            break;
           .    .    .         .    .    .         .       .      .          }
           .    .    .         .    .    .         .       .      .  
@@ -63,17 +63,17 @@ Auto-annotation:  off
           .    .    .         .    .    .         .       .      .                              uniform int output_col_start,
           .    .    .         .    .    .         .       .      .                              uniform int output_row_end,
           .    .    .         .    .    .         .       .      .                              uniform int output_col_end) {
-     41,120    2    2    10,280    0    0        80       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
+     61,440    3    3    15,360    0    0    10,240       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
           .    .    .         .    .    .         .       .      .      {
-     81,920    1    1    10,240    0    0         0       0      0        float y = (y0 + (j * dy));
-     30,720    0    0         0    0    0         0       0      0        unsigned int i0 = (j * 512);
+     81,920    0    0    10,240    2    0         0       0      0        float y = (y0 + (j * dy));
+     30,720    1    1         0    0    0         0       0      0        unsigned int i0 = (j * 512);
           .    .    .         .    .    .         .       .      .  
-  6,553,800    1    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
+  6,579,200    1    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
           .    .    .         .    .    .         .       .      .          {
- 13,107,280    1    1 1,310,740    0    0        20       0      0            float x = (x0 + (i * dx));
+ 13,117,440    0    0 1,313,280    2    0     2,560       0      0            float x = (x0 + (i * dx));
           .    .    .         .    .    .         .       .      .            int index = (i + i0);
           .    .    .         .    .    .         .       .      .  
-  3,952,820    1    1        80   21    2 1,310,760 327,680 16,384            output[index] = mandel(x, y);
+  3,975,680    2    2    10,240    3    2 1,315,840 327,681 16,384            output[index] = mandel(x, y);
           .    .    .         .    .    .         .       .      .          }
           .    .    .         .    .    .         .       .      .        }
           .    .    .         .    .    .         .       .      .      }
@@ -83,5 +83,5 @@ Auto-annotation:  off
 --------------------------------------------------------------------------------
  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw 
 --------------------------------------------------------------------------------
-100    0    0 84    0    0 88   99   91  percentage of events annotated
+100    0    0 75    0    0 79   98   83  percentage of events annotated
 

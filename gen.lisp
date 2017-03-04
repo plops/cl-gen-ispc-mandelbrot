@@ -72,7 +72,7 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      
 	      (dotimes (i 20)
-		(funcall "ispc::mandelbrot_ispc"
+		#+nil (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy
 				      buf
@@ -82,7 +82,7 @@
 				      )
 		(let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-		  #+nil (funcall "tbb::parallel_for"
+		   (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int,int>"
 				    0 ,width ,grain-cols
 				    0 ,height ,grain-rows)
