@@ -24,3 +24,12 @@ source/mandelbrot_ispc.o: source/mandelbrot.ispc
 
 clean:
 	rm source/mandelbrot_ispc.o source/main
+
+cache: source/mandelbrot.cachegrind
+
+source/cache.out: source/main
+	time valgrind --tool=cachegrind --cachegrind-out-file=source/cache.out source/main 
+
+source/mandelbrot.cachegrind: source/cache.out
+	cg_annotate source/cache.out source/mandelbrot.ispc > source/mandelbrot.cachegrind
+#  --branch-sim=yes

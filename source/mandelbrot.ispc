@@ -35,13 +35,17 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
                             uniform int output_row_end,
                             uniform int output_col_end) {
   for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
-    foreach (i = output_col_start... output_col_end) {
-      {
-        float x = (x0 + (i * dx));
-        float y = (y0 + (j * dy));
-        int index = (i + (j * 512));
+    {
+      float y = (y0 + (j * dy));
+      unsigned int i0 = (j * 512);
 
-        output[index] = mandel(x, y);
+      foreach (i = output_col_start... output_col_end) {
+        {
+          float x = (x0 + (i * dx));
+          int index = (i + i0);
+
+          output[index] = mandel(x, y);
+        }
       }
     }
   }

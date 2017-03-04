@@ -1,0 +1,29 @@
+--------------------------------------------------------------------------------
+I1 cache:         32768 B, 64 B, 4-way associative
+D1 cache:         32768 B, 64 B, 8-way associative
+LL cache:         3145728 B, 64 B, 12-way associative
+Command:          source/main
+Data file:        source/cache.out
+Events recorded:  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Events shown:     Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Event sort order: Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Thresholds:       0.1 100 100 100 100 100 100 100 100
+Include dirs:     
+User annotated:   source/mandelbrot.ispc
+Auto-annotation:  off
+
+--------------------------------------------------------------------------------
+           Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw 
+--------------------------------------------------------------------------------
+2,903,527,787 2,634 2,435 3,145,956 11,646 6,378 1,495,187 330,014 18,092  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+           Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw  file:function
+--------------------------------------------------------------------------------
+2,901,568,000     8     8 2,642,060     21     2 1,310,860 327,680 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+
+--------------------------------------------------------------------------------
+-- User-annotated source: source/mandelbrot.ispc
+--------------------------------------------------------------------------------
+  No information has been collected for source/mandelbrot.ispc
+
