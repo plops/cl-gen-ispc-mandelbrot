@@ -1,10 +1,10 @@
-#include <fstream>
-#include <algorithm>
-#include <type_traits>
-#include <iostream>
 #include "mandelbrot_ispc.h"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <stdint.h>
 #include <tbb/tbb.h>
+#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
