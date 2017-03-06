@@ -72,8 +72,8 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      
 	      (dotimes (i
-			 100)
-		#+nil (funcall "ispc::mandelbrot_ispc"
+			 5000)
+	        #+nil (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy
 				      buf
@@ -182,7 +182,7 @@
 				  (let ((x :type float :init (+ x0 (* i dx)))
 					(index :type int :init (+ i i0))
 					)
-				    (setf (aref output index)
+				    (statements ;	     setf (aref output index)
 					  (funcall mandel x y #+nil max_iterations))))))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-ispc-filename*)))))
 
