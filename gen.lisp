@@ -72,7 +72,7 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      
 	      (dotimes (i
-			 5000)
+			 1000)
 	        #+nil (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy

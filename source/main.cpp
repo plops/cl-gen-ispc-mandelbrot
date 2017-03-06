@@ -36,7 +36,7 @@ int main() {
     float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (unsigned int i = 0; (i < 5000); i += 1) {
+    for (unsigned int i = 0; (i < 1000); i += 1) {
       {
 
         tbb::parallel_for(
