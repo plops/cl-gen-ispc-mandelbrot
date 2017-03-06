@@ -5,7 +5,7 @@ source/main: source/main.cpp source/mandelbrot_ispc.o
 	$(CXX) $(CXXFLAGS) -o source/main source/mandelbrot_ispc.o source/main.cpp -ltbb
 
 source/mandelbrot_ispc.o: source/mandelbrot.ispc
-	ispc -g -O3   --opt=fast-math source/mandelbrot.ispc -o source/mandelbrot_ispc.o -h  source/mandelbrot_ispc.h  --target=sse4-i32x4 --opt=force-aligned-memory
+	ispc -g -O3   --opt=fast-math source/mandelbrot.ispc -o source/mandelbrot_ispc.o -h  source/mandelbrot_ispc.h  --target=avx2-i32x16 --opt=force-aligned-memory
 
 
 # --opt=fast-masked-vload --opt=force-aligned-memory

@@ -13,75 +13,75 @@ User annotated:   /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.i
 Auto-annotation:  off
 
 --------------------------------------------------------------------------------
-           Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw 
+           Ir  I1mr  ILmr          Dr   D1mr  DLmr         Dw    D1mw   DLmw 
 --------------------------------------------------------------------------------
-2,910,011,280 5,480 2,909 4,498,394 37,822 9,244 2,097,096 336,384 20,378  PROGRAM TOTALS
+1,556,061,808 5,249 2,908 241,704,210 36,761 9,235 55,352,089 336,109 20,123  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
-           Ir  I1mr ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw  file:function
+           Ir  I1mr ILmr          Dr   D1mr  DLmr         Dw    D1mw   DLmw  file:function
 --------------------------------------------------------------------------------
-2,903,820,180    24    7 2,836,480    645     2 1,382,400 328,308 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+1,550,032,680    30   12 240,203,160     10     2 54,642,520 328,298 16,384  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
 
 --------------------------------------------------------------------------------
 -- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 --------------------------------------------------------------------------------
-         Ir I1mr ILmr        Dr D1mr DLmr        Dw    D1mw   DLmw 
+         Ir I1mr ILmr         Dr D1mr DLmr         Dw    D1mw   DLmw 
 
-          .    .    .         .    .    .         .       .      .  static inline int mandel(float c_re, float c_im) {
-          .    .    .         .    .    .         .       .      .    {
-          .    .    .         .    .    .         .       .      .      float z_re = c_re;
-          .    .    .         .    .    .         .       .      .      float z_im = c_im;
-          .    .    .         .    .    .         .       .      .      int ret = 0;
-          .    .    .         .    .    .         .       .      .  
-867,200,140    2    1         0    0    0         0       0      0      for (unsigned int i = 0; (i < 256); i += 1) {
-          .    .    .         .    .    .         .       .      .        {
-192,128,600    5    1         0    0    0         0       0      0          float re2 = (z_re * z_re);
-192,128,600    0    0         0    0    0         0       0      0          float im2 = (z_im * z_im);
-          .    .    .         .    .    .         .       .      .  
-384,257,200    0    0         0    0    0         0       0      0          if (((4.e+0) < (re2 + im2))) {
- 96,064,300    0    0         0    0    0         0       0      0            ret = i;
-385,221,500    0    0         0    0    0         0       0      0            break;
-          .    .    .         .    .    .         .       .      .          }
-          .    .    .         .    .    .         .       .      .  
-          .    .    .         .    .    .         .       .      .          {
- 95,100,000    0    0         0    0    0         0       0      0            float new_re = ((z_re * z_re) - (z_im * z_im));
-285,300,000    0    0         0    0    0         0       0      0            float new_im = ((2.e+0) * z_re * z_im);
-          .    .    .         .    .    .         .       .      .  
-190,200,000    0    0         0    0    0         0       0      0            z_re = (c_re + new_re);
-190,200,000    0    0         0    0    0         0       0      0            z_im = (c_im + new_im);
-          .    .    .         .    .    .         .       .      .          }
-          .    .    .         .    .    .         .       .      .        }
-          .    .    .         .    .    .         .       .      .      }
-          .    .    .         .    .    .         .       .      .  
-          .    .    .         .    .    .         .       .      .      return ret;
-          .    .    .         .    .    .         .       .      .    }
-          .    .    .         .    .    .         .       .      .  }
-          .    .    .         .    .    .         .       .      .  
-          .    .    .         .    .    .         .       .      .  export void mandelbrot_ispc(uniform float x0, uniform float y0,
-          .    .    .         .    .    .         .       .      .                              uniform float dx, uniform float dy,
-          .    .    .         .    .    .         .       .      .                              uniform int output[], uniform int output_row_start,
-          .    .    .         .    .    .         .       .      .                              uniform int output_col_start,
-          .    .    .         .    .    .         .       .      .                              uniform int output_row_end,
-          .    .    .         .    .    .         .       .      .                              uniform int output_col_end) {
-     61,440    2    1         0    0    0    40,960       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
-          .    .    .         .    .    .         .       .      .      {
-  1,310,720    0    0   163,840    0    0         0       0      0        float y = (y0 + (j * dy));
-    491,520    1    0         0    0    0         0       0      0        unsigned int i0 = (j * 512);
-          .    .    .         .    .    .         .       .      .  
-  6,656,000    5    1 1,310,720    0    0         0       0      0        foreach (i = output_col_start... output_col_end) {
-          .    .    .         .    .    .         .       .      .          {
- 13,219,840    3    1 1,361,920  645    2    30,720     626      0            float x = (x0 + (i * dx));
-          .    .    .         .    .    .         .       .      .            int index = (i + i0);
-          .    .    .         .    .    .         .       .      .  
-  4,280,320    6    2         0    0    0 1,310,720 327,682 16,384            output[index] = mandel(x, y);
-          .    .    .         .    .    .         .       .      .          }
-          .    .    .         .    .    .         .       .      .        }
-          .    .    .         .    .    .         .       .      .      }
-          .    .    .         .    .    .         .       .      .    }
-          .    .    .         .    .    .         .       .      .  }
+          .    .    .          .    .    .          .       .      .  static inline int mandel(float c_re, float c_im) {
+          .    .    .          .    .    .          .       .      .    {
+          .    .    .          .    .    .          .       .      .      float z_re = c_re;
+          .    .    .          .    .    .          .       .      .      float z_im = c_im;
+          .    .    .          .    .    .          .       .      .      int ret = 0;
+          .    .    .          .    .    .          .       .      .  
+425,425,600    1    1 79,644,420    0    0          0       0      0      for (unsigned int i = 0; (i < 256); i += 1) {
+          .    .    .          .    .    .          .       .      .        {
+ 53,096,280    0    0          0    0    0          0       0      0          float re2 = (z_re * z_re);
+106,192,560    0    0          0    0    0          0       0      0          float im2 = (z_im * z_im);
+          .    .    .          .    .    .          .       .      .  
+185,836,980    3    1 26,548,140    3    1          0       0      0          if (((4.e+0) < (re2 + im2))) {
+ 53,096,280    1    1          0    0    0          0       0      0            ret = i;
+212,617,180    3    1          0    0    0          0       0      0            break;
+          .    .    .          .    .    .          .       .      .          }
+          .    .    .          .    .    .          .       .      .  
+          .    .    .          .    .    .          .       .      .          {
+ 52,632,160    0    0          0    0    0          0       0      0            float new_re = ((z_re * z_re) - (z_im * z_im));
+ 52,632,160    0    0          0    0    0          0       0      0            float new_im = ((2.e+0) * z_re * z_im);
+          .    .    .          .    .    .          .       .      .  
+131,580,400    0    0 78,948,240    1    0          0       0      0            z_re = (c_re + new_re);
+211,456,880    1    1 53,096,280    0    0          0       0      0            z_im = (c_im + new_im);
+          .    .    .          .    .    .          .       .      .          }
+          .    .    .          .    .    .          .       .      .        }
+          .    .    .          .    .    .          .       .      .      }
+          .    .    .          .    .    .          .       .      .  
+          .    .    .          .    .    .          .       .      .      return ret;
+          .    .    .          .    .    .          .       .      .    }
+          .    .    .          .    .    .          .       .      .  }
+          .    .    .          .    .    .          .       .      .  
+          .    .    .          .    .    .          .       .      .  export void mandelbrot_ispc(uniform float x0, uniform float y0,
+          .    .    .          .    .    .          .       .      .                              uniform float dx, uniform float dy,
+          .    .    .          .    .    .          .       .      .                              uniform int output[], uniform int output_row_start,
+          .    .    .          .    .    .          .       .      .                              uniform int output_col_start,
+          .    .    .          .    .    .          .       .      .                              uniform int output_row_end,
+          .    .    .          .    .    .          .       .      .                              uniform int output_col_end) {
+     71,680    6    2          0    0    0     40,960       0      0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
+          .    .    .          .    .    .          .       .      .      {
+  1,638,400    3    1    327,680    1    0    163,840       0      0        float y = (y0 + (j * dy));
+    327,680    1    0          0    0    0          0       0      0        unsigned int i0 = (j * 512);
+          .    .    .          .    .    .          .       .      .  
+  2,068,480    0    0    655,360    3    1          0       0      0        foreach (i = output_col_start... output_col_end) {
+          .    .    .          .    .    .          .       .      .          {
+ 59,701,080    8    3    983,040    2    0 53,782,360     618      0            float x = (x0 + (i * dx));
+          .    .    .          .    .    .          .       .      .            int index = (i + i0);
+          .    .    .          .    .    .          .       .      .  
+  1,658,880    3    1          0    0    0    655,360 327,680 16,384            output[index] = mandel(x, y);
+          .    .    .          .    .    .          .       .      .          }
+          .    .    .          .    .    .          .       .      .        }
+          .    .    .          .    .    .          .       .      .      }
+          .    .    .          .    .    .          .       .      .    }
+          .    .    .          .    .    .          .       .      .  }
 
 --------------------------------------------------------------------------------
  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw 
 --------------------------------------------------------------------------------
-100    0    0 63    2    0 66   98   80  percentage of events annotated
+100    1    0 99    0    0 99   98   81  percentage of events annotated
 
