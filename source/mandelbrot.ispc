@@ -44,7 +44,7 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
           float x = (x0 + (i * dx));
           int index = (i + i0);
 
-          mandel(x, y);
+          output[index] = mandel(x, y);
         }
       }
     }
