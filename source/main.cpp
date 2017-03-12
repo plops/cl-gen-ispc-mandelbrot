@@ -36,8 +36,8 @@ int main() {
     float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (unsigned int i = 0; (i < 1000); i += 1) {
-      {}
+    for (unsigned int i = 0; (i < 1); i += 1) {
+      ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
     }
 
     return 0;

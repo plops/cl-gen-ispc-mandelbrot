@@ -43,6 +43,44 @@
 				     (line :type int)
 				     (mask :type uint64_t)) void)
 		    (macroexpand (e fn (string ":") line (string " - ") note (string ", 0x") |STD::HEX| mask ))))
+
+	 ;;  this is the tile code from intel ospray 
+	 ;;   
+
+	 ;; 	 struct OSPRAY_SDK_INTERFACE __aligned(64) Tile {
+	 ;;     // make sure this tile is 64-byte aligned when alloc'ed
+	 ;;   void* operator new(size_t size) { return alignedMalloc(size); }       
+	 ;;   void operator delete(void* ptr) { alignedFree(ptr); }      
+	 ;;   void* operator new[](size_t size) { return alignedMalloc(size); }  
+	 ;;   void operator delete[](void* ptr) { alignedFree(ptr); } 
+	 ;;     // 'red' component; in float.
+	 ;;     float r[TILE_SIZE*TILE_SIZE];
+	 ;;     // 'green' component; in float.
+	 ;;     float g[TILE_SIZE*TILE_SIZE];
+	 ;;     // 'blue' component; in float.
+	 ;;     float b[TILE_SIZE*TILE_SIZE];
+	 ;;     // 'alpha' component; in float.
+	 ;;     float a[TILE_SIZE*TILE_SIZE];
+	 ;;     // 'depth' component; in float.
+	 ;;     float z[TILE_SIZE*TILE_SIZE];
+	 ;;     region2i region; /*!< screen region that this corresponds to */
+	 ;;     vec2i    fbSize; /*!< total frame buffer size, for the camera */
+	 ;;     vec2f    rcp_fbSize;
+	 ;;     int32    generation;
+	 ;;     int32    children;
+	 ;;     int32    accumID; //!< how often has been accumulated into this tile
+	 ;;     Tile() {}
+	 ;;     Tile(const vec2i &tile, const vec2i &fbsize, const int32 accumId)
+	 ;;       : fbSize(fbsize),
+	 ;;         rcp_fbSize(rcp(vec2f(fbsize))),
+	 ;;         generation(0),
+	 ;;         children(0),
+	 ;;         accumID(accumId)
+	 ;;     {
+	 ;;       region.lower = tile * TILE_SIZE;
+	 ;;       region.upper = ospcommon::min(region.lower + TILE_SIZE, fbsize);
+	 ;;     }
+	 ;; };
 	 (function (rdtsc () uint64_t)
 		   (let ((low :type uint32_t)
 			 (high :type uint32_t))
@@ -72,8 +110,8 @@
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      
 	      (dotimes (i
-			 1000)
-	        #+nil (funcall "ispc::mandelbrot_ispc"
+			 1)
+	         (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy
 				      buf
@@ -81,7 +119,7 @@
 				      height
 				      width
 				      )
-		(let ()#+nil ((start :init (funcall rdtsc)))
+		#+nil (let ()#+nil ((start :init (funcall rdtsc)))
 		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
 		   #+nil (funcall "tbb::parallel_for"
 			   (funcall "tbb::blocked_range2d<int,int>"
