@@ -13,75 +13,23 @@ User annotated:   /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.i
 Auto-annotation:  off
 
 --------------------------------------------------------------------------------
-           Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw          Bc     Bcm    Bi Bim 
+       Ir  I1mr  ILmr      Dr   D1mr  DLmr      Dw  D1mw  DLmw      Bc    Bcm    Bi Bim 
 --------------------------------------------------------------------------------
-2,903,527,787 2,634 2,435 3,145,956 11,646 6,378 1,495,187 330,014 18,092 193,760,909 842,799 7,876 979  PROGRAM TOTALS
+1,959,507 2,625 2,426 503,809 11,465 6,373 184,300 2,315 1,708 290,824 13,703 7,876 979  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
-           Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw    D1mw   DLmw          Bc     Bcm    Bi Bim  file:function
+       Ir  I1mr  ILmr      Dr   D1mr  DLmr      Dw  D1mw  DLmw      Bc    Bcm    Bi Bim  file:function
 --------------------------------------------------------------------------------
-2,901,568,000     8     8 2,642,060     21     2 1,310,860 327,680 16,384 193,470,060 829,082     0   0  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+1,909,929 2,155 1,970 488,729 11,118 6,305 178,227 2,147 1,562 282,134 12,748 7,671 950  ???:???
+   10,069    10    10   2,332    163    45      16     0     0   2,438    451     2   2  ???:_dl_addr
+    7,552     4     4   2,176      4     0   1,024     0     0   1,408     13   128   1  ???:btowc
+    7,392     5     5   2,744      1     0     224     0     0   1,736     50     0   0  ???:std::locale::_Impl::_M_install_facet(std::locale::id const*, std::locale::facet const*)
+    2,757     5     5       5      0     0     810    20    20     536     17     0   0  ???:std::ctype<wchar_t>::_M_initialize_ctype()
+    2,387     0     0   2,387      0     0       0     0     0       0      0     0   0  ???:__VLTRegisterPair(void**, void const*, unsigned long, void const*)
+    2,352     4     4     816     14     0     624     0     0     144      4    48   8  ???:__dynamic_cast
 
 --------------------------------------------------------------------------------
 -- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 --------------------------------------------------------------------------------
-         Ir I1mr ILmr        Dr D1mr DLmr        Dw    D1mw   DLmw         Bc     Bcm Bi Bim 
-
-          .    .    .         .    .    .         .       .      .          .       .  .   .  static inline int mandel(float c_re, float c_im) {
-          .    .    .         .    .    .         .       .      .          .       .  .   .    {
-          .    .    .         .    .    .         .       .      .          .       .  .   .      float z_re = c_re;
-          .    .    .         .    .    .         .       .      .          .       .  .   .      float z_im = c_im;
-          .    .    .         .    .    .         .       .      .          .       .  .   .      int ret = 0;
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-867,200,140    1    1         0    0    0         0       0      0 96,064,300 346,448  0   0      for (unsigned int i = 0; (i < 256); i += 1) {
-          .    .    .         .    .    .         .       .      .          .       .  .   .        {
-192,128,600    0    0         0    0    0         0       0      0          0       0  0   0          float re2 = (z_re * z_re);
-192,128,600    0    0         0    0    0         0       0      0          0       0  0   0          float im2 = (z_im * z_im);
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-384,257,200    0    0         0    0    0         0       0      0          0       0  0   0          if (((4.e+0) < (re2 + im2))) {
- 96,064,300    1    1         0    0    0         0       0      0          0       0  0   0            ret = i;
-385,221,500    0    0         0    0    0         0       0      0 96,064,300 473,026  0   0            break;
-          .    .    .         .    .    .         .       .      .          .       .  .   .          }
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-          .    .    .         .    .    .         .       .      .          .       .  .   .          {
- 95,100,000    0    0         0    0    0         0       0      0          0       0  0   0            float new_re = ((z_re * z_re) - (z_im * z_im));
-285,300,000    0    0         0    0    0         0       0      0          0       0  0   0            float new_im = ((2.e+0) * z_re * z_im);
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-190,200,000    0    0         0    0    0         0       0      0          0       0  0   0            z_re = (c_re + new_re);
-190,200,000    0    0         0    0    0         0       0      0          0       0  0   0            z_im = (c_im + new_im);
-          .    .    .         .    .    .         .       .      .          .       .  .   .          }
-          .    .    .         .    .    .         .       .      .          .       .  .   .        }
-          .    .    .         .    .    .         .       .      .          .       .  .   .      }
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-          .    .    .         .    .    .         .       .      .          .       .  .   .      return ret;
-          .    .    .         .    .    .         .       .      .          .       .  .   .    }
-          .    .    .         .    .    .         .       .      .          .       .  .   .  }
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-          .    .    .         .    .    .         .       .      .          .       .  .   .  export void mandelbrot_ispc(uniform float x0, uniform float y0,
-          .    .    .         .    .    .         .       .      .          .       .  .   .                              uniform float dx, uniform float dy,
-          .    .    .         .    .    .         .       .      .          .       .  .   .                              uniform int output[], uniform int output_row_start,
-          .    .    .         .    .    .         .       .      .          .       .  .   .                              uniform int output_col_start,
-          .    .    .         .    .    .         .       .      .          .       .  .   .                              uniform int output_row_end,
-          .    .    .         .    .    .         .       .      .          .       .  .   .                              uniform int output_col_end) {
-     41,120    2    2    10,280    0    0        80       0      0     10,260      23  0   0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
-          .    .    .         .    .    .         .       .      .          .       .  .   .      {
-     81,920    1    1    10,240    0    0         0       0      0     10,240       1  0   0        float y = (y0 + (j * dy));
-     30,720    0    0         0    0    0         0       0      0          0       0  0   0        unsigned int i0 = (j * 512);
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-  6,553,800    1    1 1,310,720    0    0         0       0      0  1,310,720   9,580  0   0        foreach (i = output_col_start... output_col_end) {
-          .    .    .         .    .    .         .       .      .          .       .  .   .          {
- 13,107,280    1    1 1,310,740    0    0        20       0      0          0       0  0   0            float x = (x0 + (i * dx));
-          .    .    .         .    .    .         .       .      .          .       .  .   .            int index = (i + i0);
-          .    .    .         .    .    .         .       .      .          .       .  .   .  
-  3,952,820    1    1        80   21    2 1,310,760 327,680 16,384     10,240       4  0   0            output[index] = mandel(x, y);
-          .    .    .         .    .    .         .       .      .          .       .  .   .          }
-          .    .    .         .    .    .         .       .      .          .       .  .   .        }
-          .    .    .         .    .    .         .       .      .          .       .  .   .      }
-          .    .    .         .    .    .         .       .      .          .       .  .   .    }
-          .    .    .         .    .    .         .       .      .          .       .  .   .  }
-
---------------------------------------------------------------------------------
- Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw  Bc Bcm Bi Bim 
---------------------------------------------------------------------------------
-100    0    0 84    0    0 88   99   91 100  98  0   0  percentage of events annotated
+  No information has been collected for /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 

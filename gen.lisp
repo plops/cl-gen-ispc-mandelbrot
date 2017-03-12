@@ -15,8 +15,8 @@
 (let ((max-iterations 256)
       (width 512)
       (height 512)
-      (grain-rows 32)
-      (grain-cols 16))
+      (grain-rows 512)
+      (grain-cols 2))
   (progn
    (defparameter *main-cpp-filename*  (merge-pathnames "stage/cl-gen-ispc-mandelbrot/source/main.cpp"
 						       (user-homedir-pathname)))
@@ -71,8 +71,9 @@
 	      #+nil (if (== nullptr buf)
 			(<< "std::cout" (string "error getting aligned buffer")))
 	      
-	      (dotimes (i 20)
-		(funcall "ispc::mandelbrot_ispc"
+	      (dotimes (i
+			 1000)
+	        #+nil (funcall "ispc::mandelbrot_ispc"
 				      x0 y0
 				      dx dy
 				      buf
@@ -181,7 +182,8 @@
 				  (let ((x :type float :init (+ x0 (* i dx)))
 					(index :type int :init (+ i i0))
 					)
-				    (setf (aref output index)
+				    (;statements ;
+				     setf (aref output index)
 					  (funcall mandel x y #+nil max_iterations))))))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-ispc-filename*)))))
 

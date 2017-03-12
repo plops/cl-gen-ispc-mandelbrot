@@ -39,10 +39,14 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
       float y = (y0 + (j * dy));
       unsigned int i0 = (j * 512);
 
-      not processable
-          : (foreach (i output_col_start output_col_end)(let(
-                (x type float init(+x0(*i dx)))(index type int init(+i i0)))(
-                setf(aref output index)(funcall mandel x y))))
+      foreach (i = output_col_start... output_col_end) {
+        {
+          float x = (x0 + (i * dx));
+          int index = (i + i0);
+
+          output[index] = mandel(x, y);
+        }
+      }
     }
   }
 }
