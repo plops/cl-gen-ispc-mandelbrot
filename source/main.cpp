@@ -37,16 +37,8 @@ int main() {
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
     for (unsigned int i = 0; (i < 20); i += 1) {
-      {
-
-        tbb::parallel_for(
-            tbb::blocked_range2d<int, int>(0, 512, 16, 0, 512, 32),
-            [=](const tbb::blocked_range2d<int, int> &r) {
-              ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
-                                    r.cols().begin(), r.rows().end(),
-                                    r.cols().end());
-            });
-      }
+      ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
+      {}
     }
 
     return 0;

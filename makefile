@@ -28,8 +28,8 @@ clean:
 cache: source/mandelbrot.cachegrind
 
 source/cache.out: source/main
-	time valgrind --tool=cachegrind --cachegrind-out-file=source/cache.out source/main 
+	time valgrind --tool=cachegrind --cachegrind-out-file=source/cache.out --branch-sim=yes source/main 
 
 source/mandelbrot.cachegrind: source/cache.out
 	cg_annotate source/cache.out  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc > source/mandelbrot.cachegrind
-#  --branch-sim=yes
+#  
