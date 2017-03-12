@@ -45,8 +45,8 @@
 		    (macroexpand (e fn (string ":") line (string " - ") note (string ", 0x") |STD::HEX| mask ))))
 
 	 ;;  this is the tile code from intel ospray 
-	 ;;   
-
+	 ;;    https://github.com/ospray/ospray/blob/master/ospray/fb/Tile.h (apache license)
+	 
 	 ;; 	 struct OSPRAY_SDK_INTERFACE __aligned(64) Tile {
 	 ;;     // make sure this tile is 64-byte aligned when alloc'ed
 	 ;;   void* operator new(size_t size) { return alignedMalloc(size); }       
