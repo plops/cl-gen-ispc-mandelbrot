@@ -63,10 +63,10 @@ pcm: source/main
 
 
 benchmark: source/main
-	sudo cpufreq-set -c0 -g performance
-	sudo cpufreq-set -c1 -g performance
-	sudo cpufreq-set -c2 -g performance
-	sudo cpufreq-set -c3 -g performance
+	sudo cpufreq-set -c0 -g performance -d 4000000
+	sudo cpufreq-set -c1 -g performance -d 4000000
+	sudo cpufreq-set -c2 -g performance -d 4000000
+	sudo cpufreq-set -c3 -g performance -d 4000000
 	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
 	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
 	sudo modprobe msr

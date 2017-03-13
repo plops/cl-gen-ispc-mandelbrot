@@ -45,6 +45,8 @@
 	 (include <cpucounters.h>)
 	 (include <sys/sysinfo.h>)
 	 (include <sched.h>)
+	 (include <fstream>)
+	 (include <sstream>)
 	 (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
@@ -136,6 +138,17 @@
 		     (raw "__asm__ __volatile__ (\"rdtsc\" : \"=a\" (low), \"=d\" (high)) ")
 		     (return (|\|| (<< (funcall static_cast<uint64_t> high) 32)
 				   low))))
+	 (function (print_cpu_freqs ((n :type "unsigned int")) "static void")
+		   (dotimes (i n)
+			   (let ((os :type "std::ostringstream"))
+			     (<< os
+				 (string "/sys/devices/system/cpu/cpu")
+				 i
+				 (string "/cpufreq/cpuinfo_cur_freq"))
+			     (let ((f :type "std::ifstream" :ctor (funcall os.str))
+				   (line :type "std::string"))
+			       (funcall "std::getline" f line)
+			       (macroexpand (e "processor " i " runs at " line " Hz"))))))
 	 (function (main ()
 			 int)
 		   (let ((number_threads :type "const int" :init 4))
@@ -150,7 +163,9 @@
 					 " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
 					 (funcall "tbb::task_scheduler_init::default_num_threads")
 					 " tbb::tbb_thread::hardware_concurrency="
-					 (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))))
+					 (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
+			 (funcall print_cpu_freqs number_threads)
+			 ))
 		     (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
 				 (width :type "const unsigned int" :init ,width)
 				 (height :type "const unsigned int" :init ,height)
@@ -228,6 +243,7 @@
 						 " l3-hit-ratio=" (funcall getL3CacheHitRatio sstate_before
 									   sstate_after)))
 				 (funcall m->cleanup))
+			 (funcall print_cpu_freqs number_threads)
 			 )
 		       #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 								   (string "/dev/shm/test.pgm")

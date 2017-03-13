@@ -2,8 +2,10 @@
 #include <algorithm>
 #include <cpucounters.h>
 #include <fstream>
+#include <fstream>
 #include <iostream>
 #include <sched.h>
+#include <sstream>
 #include <stdint.h>
 #include <sys/sysinfo.h>
 #include <tbb/tbb.h>
@@ -24,6 +26,24 @@ uint64_t rdtsc() {
                              : "%rax", "%rbx", "%rcx", "%rdx");
     __asm__ __volatile__("rdtsc" : "=a"(low), "=d"(high));
     return ((static_cast<uint64_t>(high) << 32) | low);
+  }
+}
+
+static void print_cpu_freqs(unsigned int n) {
+  for (unsigned int i = 0; (i < n); i += 1) {
+    {
+      std::ostringstream os;
+
+      (os << "/sys/devices/system/cpu/cpu" << i << "/cpufreq/cpuinfo_cur_freq");
+      {
+        std::ifstream f(os.str());
+        std::string line;
+
+        std::getline(f, line);
+        (std::cout << "processor " << i << " runs at " << line << " Hz"
+                   << std::endl);
+      }
+    }
   }
 }
 
@@ -53,6 +73,8 @@ int main() {
                    << " tbb::tbb_thread::hardware_concurrency="
                    << static_cast<int>(tbb::tbb_thread::hardware_concurrency())
                    << std::endl);
+
+        print_cpu_freqs(number_threads);
       }
     }
 
@@ -131,6 +153,8 @@ int main() {
 
           m->cleanup();
         }
+
+        print_cpu_freqs(number_threads);
       }
 
       return 0;
