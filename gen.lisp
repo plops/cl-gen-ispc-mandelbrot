@@ -46,7 +46,40 @@
 
 	 ;;  this is the tile code from intel ospray 
 	 ;;    https://github.com/ospray/ospray/blob/master/ospray/fb/Tile.h (apache license)
+	 ;; void *aligned_alloc( size_t alignment, size_t size ); //	<stdlib.h>	(since C11)
+	 ;; // use allocator from tbb?
+	 ;; https://www.threadingbuildingblocks.org/tutorial-intel-tbb-scalable-memory-allocator
+
+	 ;;  In some of these allocators, threads must compete for
+	 ;;  access to a single shared pool in a way that allows only
+	 ;;  one thread to allocate at a time.
+
+	 ;; false sharing is when two threads access different words
+	 ;; that share the same cache line.  Use the class
+	 ;; cache_aligned_allocator<T> to always allocate on a cache
+	 ;; line. Two objects allocated by cache_aligned_allocator are
+	 ;; guaranteed to not have false sharing.
+	 ;; std::vector<int, cache_aligned_allocator<int> >;
 	 
+	 ;; #include "tbb/scalable_allocator.h"
+	 ;; 	   void* alignedMalloc(size_t size, size_t align) 
+	 ;;   {
+	 ;;     assert((align & (align-1)) == 0);
+	 ;; //#if defined(TASKING_TBB) // FIXME: have to disable this for now as the TBB allocator itself seems to access some uninitialized value when using valgrind
+	 ;; //    return scalable_aligned_malloc(size,align);
+	 ;; //#else
+	 ;;     return _mm_malloc(size,align);
+	 ;; //#endif
+	 ;;   }
+  
+	 ;;   void alignedFree(void* ptr) 
+	 ;;   {
+	 ;; //#if defined(TASKING_TBB)
+	 ;; //    scalable_aligned_free(ptr);
+	 ;; //#else
+	 ;;     _mm_free(ptr);
+	 ;; //#endif
+	 ;; }
 	 ;; 	 struct OSPRAY_SDK_INTERFACE __aligned(64) Tile {
 	 ;;     // make sure this tile is 64-byte aligned when alloc'ed
 	 ;;   void* operator new(size_t size) { return alignedMalloc(size); }       
@@ -81,6 +114,8 @@
 	 ;;       region.upper = ospcommon::min(region.lower + TILE_SIZE, fbsize);
 	 ;;     }
 	 ;; };
+
+	 
 	 (function (rdtsc () uint64_t)
 		   (let ((low :type uint32_t)
 			 (high :type uint32_t))
@@ -89,76 +124,76 @@
 		     (raw "__asm__ __volatile__ (\"rdtsc\" : \"=a\" (low), \"=d\" (high)) ")
 		     (return (|\|| (<< (funcall static_cast<uint64_t> high) 32)
 				   low))))
-	   (function (main ()
-			   int)
-	    (let ((width :type "const unsigned int" :init ,width)
-		  (height :type "const unsigned int" :init ,height)
-		  (x0 :type float :init -2.0)
-		  (x1 :type float :init 1.0)
-		  (y0 :type float :init -1.0)
-		  (y1 :type float :init 1.0)
-		  (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
-		  (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
-		  ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
-		  ;; buf should be aligned to 64 byte boundary
-		  ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
-		 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
-		       :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
-		       ;:ctor (new (aref int (* ,width height)))
-		       ))
-	      #+nil (if (== nullptr buf)
-			(<< "std::cout" (string "error getting aligned buffer")))
+	 (function (main ()
+			 int)
+		   (let ((width :type "const unsigned int" :init ,width)
+			 (height :type "const unsigned int" :init ,height)
+			 (x0 :type float :init -2.0)
+			 (x1 :type float :init 1.0)
+			 (y0 :type float :init -1.0)
+			 (y1 :type float :init 1.0)
+			 (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
+			 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
+			 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
+			 ;; buf should be aligned to 64 byte boundary
+			 ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
+			 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
+				    :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
+					;:ctor (new (aref int (* ,width height)))
+				    ))
+		     #+nil (if (== nullptr buf)
+			       (<< "std::cout" (string "error getting aligned buffer")))
 	      
-	      (dotimes (i
-			 1)
-	         (funcall "ispc::mandelbrot_ispc"
-				      x0 y0
-				      dx dy
-				      buf
-				      0 0
-				      height
-				      width
-				      )
-		#+nil (let ()#+nil ((start :init (funcall rdtsc)))
-		  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-		   #+nil (funcall "tbb::parallel_for"
-			   (funcall "tbb::blocked_range2d<int,int>"
-				    0 ,width ,grain-cols
-				    0 ,height ,grain-rows)
-			   (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
-			     	 ;; x0 y0 dx dy o rs cs re ce
-			     #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
-				 " " (funcall (slot-value (funcall  r.cols) begin))
-				 " " (funcall (slot-value (funcall  r.rows) end))
-				 " " (funcall (slot-value (funcall  r.cols) end))
-				 ")"
-				 ))
+		     (dotimes (i
+				1)
+		       (funcall "ispc::mandelbrot_ispc"
+				x0 y0
+				dx dy
+				buf
+				0 0
+				height
+				width
+				)
+		       #+nil (let ()#+nil ((start :init (funcall rdtsc)))
+				  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+				  #+nil (funcall "tbb::parallel_for"
+						 (funcall "tbb::blocked_range2d<int,int>"
+							  0 ,width ,grain-cols
+							  0 ,height ,grain-rows)
+						 (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
+						   ;; x0 y0 dx dy o rs cs re ce
+						   #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
+									 " " (funcall (slot-value (funcall  r.cols) begin))
+									 " " (funcall (slot-value (funcall  r.rows) end))
+									 " " (funcall (slot-value (funcall  r.cols) end))
+									 ")"
+									 ))
 
-			     (funcall "ispc::mandelbrot_ispc"
-				      x0 y0
-				      dx dy
-				      buf
-				      (funcall (slot-value (funcall  r.rows) begin))
-				      (funcall (slot-value (funcall  r.cols) begin))
-				      (funcall (slot-value (funcall  r.rows) end))
-				      (funcall (slot-value (funcall  r.cols) end))
-				      )))
-		  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
-						 (* 1024.0 1024.0))))))
-	      #+nil (let ((f :type "std::ofstream" :ctor (comma-list
-						    (string "/dev/shm/test.pgm")
-						    (|\|| "std::ofstream::out"
-							  "std::ofstream::binary"
-							  "std::ofstream::trunc"))
-		       )
-		    (bufu8 :type "unsigned char*"  :ctor (new (aref "unsigned char" (* ,width height)))
-		       ))
-		(dotimes (i (* width height))
-		  (setf (aref bufu8 i) (funcall "std::min" 255 (funcall "std::max" 0 (aref buf i)))))
-		(<< f (string "P5\\n") width (string " ")  height  (string "\\n255\\n"))
+						   (funcall "ispc::mandelbrot_ispc"
+							    x0 y0
+							    dx dy
+							    buf
+							    (funcall (slot-value (funcall  r.rows) begin))
+							    (funcall (slot-value (funcall  r.cols) begin))
+							    (funcall (slot-value (funcall  r.rows) end))
+							    (funcall (slot-value (funcall  r.cols) end))
+							    )))
+				  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
+								       (* 1024.0 1024.0))))))
+		     #+nil (let ((f :type "std::ofstream" :ctor (comma-list
+								 (string "/dev/shm/test.pgm")
+								 (|\|| "std::ofstream::out"
+								       "std::ofstream::binary"
+								       "std::ofstream::trunc"))
+				    )
+				 (bufu8 :type "unsigned char*"  :ctor (new (aref "unsigned char" (* ,width height)))
+					))
+			     (dotimes (i (* width height))
+			       (setf (aref bufu8 i) (funcall "std::min" 255 (funcall "std::max" 0 (aref buf i)))))
+			     (<< f (string "P5\\n") width (string " ")  height  (string "\\n255\\n"))
 		
-		(funcall f.write (funcall reinterpret_cast<char*> bufu8) (* width height)))
-	      (return 0))))))
+			     (funcall f.write (funcall reinterpret_cast<char*> bufu8) (* width height)))
+		     (return 0))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-cpp-filename*))))
 
   (progn
