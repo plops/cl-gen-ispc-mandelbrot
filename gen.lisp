@@ -131,7 +131,8 @@
 				   low))))
 	 (function (main ()
 			 int)
-		   (let ((width :type "const unsigned int" :init ,width)
+		   (let ((m :type "PCM*" :init (funcall "PCM::getInstance"))
+			 (width :type "const unsigned int" :init ,width)
 			 (height :type "const unsigned int" :init ,height)
 			 (x0 :type float :init -2.0)
 			 (x1 :type float :init 1.0)
@@ -148,7 +149,9 @@
 				    ))
 		     #+nil (if (== nullptr buf)
 			       (<< "std::cout" (string "error getting aligned buffer")))
-	      
+
+		     (if (!= "PCM::Success" (funcall m->program))
+			 (return -1))
 		     (dotimes (i
 				1000)
 		       (funcall "ispc::mandelbrot_ispc"

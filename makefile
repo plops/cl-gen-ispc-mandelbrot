@@ -8,11 +8,12 @@ CXXFLAGS=-g -O3  -fstack-protector-strong -fident -fno-lto -fasynchronous-unwind
 #--std=c++11
 
 # pcm needs to be compiled with g++, clang++ gives this error: /home/martin/src/pcm/types.h:298:9: error: anonymous types declared in an anonymous union are an extension
-CXXINC = -I/home/martin/src/pcm
+CXXINCPCM = -I/home/martin/src/pcm
+CXXLIBPCM = -L/home/martin/src/pcm/pcm.so -lpcm -Wl,-rpath,/home/martin/src/pcm/pcm.so
 
 # --std=gnu++1y
 source/main: source/main.cpp source/mandelbrot_ispc.o
-	$(CXX) $(CXXFLAGS) -o source/main source/mandelbrot_ispc.o source/main.cpp -ltbb $(CXXINC)
+	$(CXX) $(CXXFLAGS) -o source/main source/mandelbrot_ispc.o source/main.cpp -ltbb $(CXXINCPCM) $(CXXLIBPCM)
 
 source/mandelbrot_ispc.o: source/mandelbrot.ispc
 	ispc -g -O3   --opt=fast-math source/mandelbrot.ispc -o source/mandelbrot_ispc.o -h  source/mandelbrot_ispc.h  --target=avx2-i32x16 --opt=force-aligned-memory

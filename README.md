@@ -5,6 +5,9 @@ https://software.intel.com/en-us/articles/intel-performance-counter-monitor#call
 
 cd ~/src/
 git clone https://github.com/opcm/pcm
+cd pcm.so
+make
+
 
 L3 cache is global and shared by all cores and counters are not tracking the specific thread's IP
 

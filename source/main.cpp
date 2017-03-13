@@ -27,6 +27,7 @@ uint64_t rdtsc() {
 
 int main() {
   {
+    PCM *m = PCM::getInstance();
     const unsigned int width = 128;
     const unsigned int height = 512;
     float x0 = (-2.e+0);
@@ -36,6 +37,10 @@ int main() {
     float dx = ((x1 - x0) * ((1.e+0) / 128));
     float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
+
+    if ((PCM::Success != m->program())) {
+      return -1;
+    }
 
     for (unsigned int i = 0; (i < 1000); i += 1) {
       ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
