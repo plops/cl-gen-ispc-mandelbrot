@@ -281,28 +281,45 @@
 
 				 ;; grep "64 get" cpucounters.h |grep "(const CounterStateType & before, const CounterStateType & after)"|cut -d "(" -f 1|awk '{print $NF}'|sort|uniq
 				 ,@(loop for call in `(getBytesReadFromEDC
-							      getBytesReadFromMC
-							      getBytesWrittenToEDC
-							      getBytesWrittenToMC
-							      getConsumedEnergy
-							      getCycles
-							      getDRAMConsumedEnergy
-							      getIORequestBytesFromMC
-							      getInstructionsRetired
-							      getInvariantTSC
-							      getL2CacheHits
-							      getL2CacheMisses
-							      getL3CacheHits
-							      getL3CacheHitsNoSnoop
-							      getL3CacheHitsSnoop
-							      getL3CacheMisses
-							      getLocalMemoryBW
-							      ;getPCUClocks
-							      getRefCycles
-							      getRemoteMemoryBW
-							      getL2CacheHitRatio
-							      getL3CacheHitRatio
-							      getIPC) collect
+						       getBytesReadFromMC
+						       getBytesWrittenToEDC
+						       getBytesWrittenToMC
+						       getConsumedEnergy
+						       getCycles
+						       getDRAMConsumedEnergy
+						       getIORequestBytesFromMC
+						       getInstructionsRetired
+						       getInvariantTSC
+						       getL2CacheHits
+						       getL2CacheMisses
+						       getL3CacheHits
+						       getL3CacheHitsNoSnoop
+						       getL3CacheHitsSnoop
+						       getL3CacheMisses
+						       getLocalMemoryBW
+					;getPCUClocks
+						       getRefCycles
+						       getRemoteMemoryBW
+						       getL2CacheHitRatio
+						       getL3CacheHitRatio
+
+						       
+						       getCoreIPC
+						       getTotalExecUsage
+						       getQPItoMCTrafficRatio
+						       getConsumedJoules
+						       getDRAMConsumedJoules
+						       getIPC
+						       getExecUsage
+						       getAverageFrequency
+						       getActiveAverageFrequency
+						       getRelativeFrequency
+						       getActiveRelativeFrequency
+						       getCyclesLostDueL3CacheMisses
+						       getCyclesLostDueL2CacheMisses
+						       getL2CacheHitRatio
+						       getL3CacheHitRatio
+						       ) collect
 					`(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call sstate_before sstate_after))))
 				 ,@(loop for call in `(getPCUFrequency
 						       getMaxIPC

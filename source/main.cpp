@@ -253,8 +253,64 @@ int main() {
                      << getL3CacheHitRatio(sstate_before, sstate_after)
                      << std::endl);
 
+          (std::cout << "getCoreIPC           = "
+                     << getCoreIPC(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getTotalExecUsage    = "
+                     << getTotalExecUsage(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getQPItoMCTrafficRatio = "
+                     << getQPItoMCTrafficRatio(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getConsumedJoules    = "
+                     << getConsumedJoules(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getDRAMConsumedJoules = "
+                     << getDRAMConsumedJoules(sstate_before, sstate_after)
+                     << std::endl);
+
           (std::cout << "getIPC               = "
                      << getIPC(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getExecUsage         = "
+                     << getExecUsage(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getAverageFrequency  = "
+                     << getAverageFrequency(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getActiveAverageFrequency = "
+                     << getActiveAverageFrequency(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getRelativeFrequency = "
+                     << getRelativeFrequency(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getActiveRelativeFrequency = "
+                     << getActiveRelativeFrequency(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getCyclesLostDueL3CacheMisses = "
+                     << getCyclesLostDueL3CacheMisses(sstate_before,
+                                                      sstate_after)
+                     << std::endl);
+
+          (std::cout << "getCyclesLostDueL2CacheMisses = "
+                     << getCyclesLostDueL2CacheMisses(sstate_before,
+                                                      sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL2CacheHitRatio   = "
+                     << getL2CacheHitRatio(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheHitRatio   = "
+                     << getL3CacheHitRatio(sstate_before, sstate_after)
+                     << std::endl);
 
           (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
                      << std::endl);
