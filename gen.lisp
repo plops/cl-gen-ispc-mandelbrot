@@ -1,6 +1,6 @@
 (push :ispc *features*) ;; for now i have to open cp.lisp and compile it again with C-c C-k, so that foreach works
 
-
+(push :pcm *features*)
 (eval-when (:compile-toplevel :execute :load-toplevel)
   (ql:quickload :cl-cpp-generator))
 
@@ -163,10 +163,11 @@
 			 (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
 			 (2 (macroexpand (e "pcm init pmu busy"))
 			    #+nil (funcall "PCM::cleanupPMU")
+			    (funcall m->resetPMU)
 			    (setf ret (funcall m->program)))
 			 (t (macroexpand (e "pcm init unknown error")))))
 
-		     (let ((sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
+		     (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 		       
 		       (dotimes (i
 				  100)
