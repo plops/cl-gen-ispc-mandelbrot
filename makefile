@@ -64,10 +64,6 @@ pcm: source/main
 CLOCKSPEED = 3600000
 
 benchmark: source/main
-	sudo cpufreq-set -c0 -g performance -d $(CLOCKSPEED)
-	sudo cpufreq-set -c1 -g performance -d $(CLOCKSPEED)
-	sudo cpufreq-set -c2 -g performance -d $(CLOCKSPEED)
-	sudo cpufreq-set -c3 -g performance -d $(CLOCKSPEED)
 	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
 	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
 	sudo modprobe msr
@@ -76,3 +72,9 @@ benchmark: source/main
 	sudo cpufreq-set -c1 -g powersave
 	sudo cpufreq-set -c2 -g powersave
 	sudo cpufreq-set -c3 -g powersave	
+
+
+# sudo cpufreq-set -c0 -g performance -d $(CLOCKSPEED)
+# sudo cpufreq-set -c1 -g performance -d $(CLOCKSPEED)
+# sudo cpufreq-set -c2 -g performance -d $(CLOCKSPEED)
+# sudo cpufreq-set -c3 -g performance -d $(CLOCKSPEED)

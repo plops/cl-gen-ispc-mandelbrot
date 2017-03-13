@@ -29,7 +29,34 @@ uint64_t rdtsc() {
   }
 }
 
-static void print_cpu_freqs(unsigned int n) {
+static void sys_file_write(std::string fn, std::string str) {
+  {
+    std::ofstream f(fn);
+
+    (f << str);
+  }
+}
+
+static void cpu_frequency_set(unsigned int cpu, unsigned int freq_hz) {
+  {
+    std::ostringstream fn;
+    std::ostringstream out;
+
+    (fn << "/sys/devices/system/cpu/cpu" << cpu << "/cpufreq/scaling_governor");
+    (out << "performance");
+    sys_file_write(fn.str(), out.str());
+
+    (fn << "/sys/devices/system/cpu/cpu" << cpu << "/cpufreq/scaling_min_freq");
+    (out << freq_hz);
+    sys_file_write(fn.str(), out.str());
+
+    (fn << "/sys/devices/system/cpu/cpu" << cpu << "/cpufreq/scaling_max_freq");
+    (out << freq_hz);
+    sys_file_write(fn.str(), out.str());
+  }
+}
+
+static void cpu_frequencies_print(unsigned int n) {
   for (unsigned int i = 0; (i < n); i += 1) {
     {
       std::ostringstream os;
@@ -50,6 +77,10 @@ static void print_cpu_freqs(unsigned int n) {
 int main() {
   {
     const int number_threads = 4;
+
+    for (unsigned int i = 0; (i < number_threads); i += 1) {
+      cpu_frequency_set(i, 3600000);
+    }
 
     {
       cpu_set_t cpu_mask;
@@ -74,7 +105,7 @@ int main() {
                    << static_cast<int>(tbb::tbb_thread::hardware_concurrency())
                    << std::endl);
 
-        print_cpu_freqs(number_threads);
+        cpu_frequencies_print(number_threads);
       }
     }
 
@@ -140,21 +171,29 @@ int main() {
         {
           SystemCounterState sstate_after = getSystemCounterState();
 
-          (std::cout << "instr-retir="
+          (std::cout << "instr-retir = "
                      << getInstructionsRetired(sstate_before, sstate_after)
-                     << " instr/clock=" << getIPC(sstate_before, sstate_after)
-                     << " invar-tsc="
+                     << std::endl);
+
+          (std::cout << "instr/clock = " << getIPC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "invaria-tsc = "
                      << getInvariantTSC(sstate_before, sstate_after)
-                     << " l2-hit-ratio="
+                     << std::endl);
+
+          (std::cout << "l2hit-ratio = "
                      << getL2CacheHitRatio(sstate_before, sstate_after)
-                     << " l3-hit-ratio="
+                     << std::endl);
+
+          (std::cout << "l3hit-ratio = "
                      << getL3CacheHitRatio(sstate_before, sstate_after)
                      << std::endl);
 
           m->cleanup();
         }
 
-        print_cpu_freqs(number_threads);
+        cpu_frequencies_print(number_threads);
       }
 
       return 0;

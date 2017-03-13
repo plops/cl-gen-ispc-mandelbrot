@@ -138,20 +138,57 @@
 		     (raw "__asm__ __volatile__ (\"rdtsc\" : \"=a\" (low), \"=d\" (high)) ")
 		     (return (|\|| (<< (funcall static_cast<uint64_t> high) 32)
 				   low))))
-	 (function (print_cpu_freqs ((n :type "unsigned int")) "static void")
+	 (function (sys_file_write ((fn :type "std::string")
+				    (str :type "std::string"))
+				   "static void")
+		   (let ((f :type "std::ofstream" :ctor fn))
+		     (<< f str)))
+	 (function (cpu_frequency_set ((cpu :type "unsigned int")
+				       (freq_hz :type "unsigned int"))
+				 "static void")
+		   ;; write performance into /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+		   ;; write the same number into /sys/devices/system/cpu/cpu<cpu>/cpufreq/scaling_{min,max}_freq
+		   (let ((fn :type "std::ostringstream")
+			 (out :type "std::ostringstream"))
+
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_governor"))
+		      (<< out (string "performance"))
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_min_freq"))
+		      (<< out freq_hz)
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_max_freq"))
+		      (<< out freq_hz)
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))))
+	 (function (cpu_frequencies_print ((n :type "unsigned int")) "static void")
 		   (dotimes (i n)
-			   (let ((os :type "std::ostringstream"))
-			     (<< os
-				 (string "/sys/devices/system/cpu/cpu")
-				 i
-				 (string "/cpufreq/cpuinfo_cur_freq"))
-			     (let ((f :type "std::ifstream" :ctor (funcall os.str))
-				   (line :type "std::string"))
-			       (funcall "std::getline" f line)
-			       (macroexpand (e "processor " i " runs at " line " Hz"))))))
+		     (let ((os :type "std::ostringstream"))
+		       (<< os
+			   (string "/sys/devices/system/cpu/cpu")
+			   i
+			   (string "/cpufreq/cpuinfo_cur_freq"))
+		       (let ((f :type "std::ifstream" :ctor (funcall os.str))
+			     (line :type "std::string"))
+			 (funcall "std::getline" f line)
+			 (macroexpand (e "processor " i " runs at " line " Hz"))))))
 	 (function (main ()
 			 int)
+		   
 		   (let ((number_threads :type "const int" :init 4))
+		     (dotimes (i number_threads)
+		       (funcall cpu_frequency_set i 3600000))
 		     (let ((cpu_mask :type cpu_set_t))
 		       (funcall CPU_ZERO &cpu_mask)
 		       (dotimes (i number_threads)
@@ -164,7 +201,8 @@
 					 (funcall "tbb::task_scheduler_init::default_num_threads")
 					 " tbb::tbb_thread::hardware_concurrency="
 					 (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
-			 (funcall print_cpu_freqs number_threads)
+			 
+			 (funcall cpu_frequencies_print number_threads)
 			 ))
 		     (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
 				 (width :type "const unsigned int" :init ,width)
@@ -235,15 +273,25 @@
 				#+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 								     (* 1024.0 1024.0))))))
 			 #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
-				 (macroexpand (e "instr-retir="  (funcall getInstructionsRetired sstate_before sstate_after) 
-						 " instr/clock=" (funcall getIPC sstate_before sstate_after)
-						 " invar-tsc=" (funcall getInvariantTSC sstate_before sstate_after)
-						 " l2-hit-ratio=" (funcall getL2CacheHitRatio sstate_before
+				 
+				 (macroexpand (e "instr-retir = "  (funcall getInstructionsRetired sstate_before sstate_after) 
+						 ))
+				 (macroexpand (e 
+						 "instr/clock = " (funcall getIPC sstate_before sstate_after)
+						))
+				 (macroexpand (e 
+						 "invaria-tsc = " (funcall getInvariantTSC sstate_before sstate_after)
+						 ))
+				 (macroexpand (e
+						
+						 "l2hit-ratio = " (funcall getL2CacheHitRatio sstate_before
 									   sstate_after)
-						 " l3-hit-ratio=" (funcall getL3CacheHitRatio sstate_before
+					))
+				 (macroexpand (e 
+						 "l3hit-ratio = " (funcall getL3CacheHitRatio sstate_before
 									   sstate_after)))
 				 (funcall m->cleanup))
-			 (funcall print_cpu_freqs number_threads)
+			 (funcall cpu_frequencies_print number_threads)
 			 )
 		       #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 								   (string "/dev/shm/test.pgm")
