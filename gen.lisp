@@ -65,6 +65,11 @@
 	 ;; enables the use of huge pages by the allocator if
 	 ;; supported for the operating system,
 
+	 ;; it is sometimes an inappropriate replacement, because the
+	 ;; benefit of allocating on a cache line comes at the price
+	 ;; that cache_aligned_allocator implicitly adds pad
+	 ;; memory. The padding is typically 128 bytes.
+
 	 ;; #include "tbb/scalable_allocator.h"
 	 ;; 	   void* alignedMalloc(size_t size, size_t align) 
 	 ;;   {
