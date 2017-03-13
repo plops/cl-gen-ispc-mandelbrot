@@ -152,42 +152,48 @@
 
 		     (if (!= "PCM::Success" (funcall m->program))
 			 (return -1))
-		     (dotimes (i
-				1000)
-		       (funcall "ispc::mandelbrot_ispc"
-				x0 y0
-				dx dy
-				buf
-				0 0
-				height
-				width
-				)
-		       #+nil (let ()#+nil ((start :init (funcall rdtsc)))
-				  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-				  #+nil (funcall "tbb::parallel_for"
-						 (funcall "tbb::blocked_range2d<int,int>"
-							  0 ,width ,grain-cols
-							  0 ,height ,grain-rows)
-						 (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
-						   ;; x0 y0 dx dy o rs cs re ce
-						   #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
-									 " " (funcall (slot-value (funcall  r.cols) begin))
-									 " " (funcall (slot-value (funcall  r.rows) end))
-									 " " (funcall (slot-value (funcall  r.cols) end))
-									 ")"
-									 ))
 
-						   (funcall "ispc::mandelbrot_ispc"
-							    x0 y0
-							    dx dy
-							    buf
-							    (funcall (slot-value (funcall  r.rows) begin))
-							    (funcall (slot-value (funcall  r.cols) begin))
-							    (funcall (slot-value (funcall  r.rows) end))
-							    (funcall (slot-value (funcall  r.cols) end))
-							    )))
-				  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
-								       (* 1024.0 1024.0))))))
+		     (let ((sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
+		       
+		       (dotimes (i
+				  1000)
+			 (funcall "ispc::mandelbrot_ispc"
+				  x0 y0
+				  dx dy
+				  buf
+				  0 0
+				  height
+				  width
+				  )
+			 #+nil (let ()#+nil ((start :init (funcall rdtsc)))
+				    #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+				    #+nil (funcall "tbb::parallel_for"
+						   (funcall "tbb::blocked_range2d<int,int>"
+							    0 ,width ,grain-cols
+							    0 ,height ,grain-rows)
+						   (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
+						     ;; x0 y0 dx dy o rs cs re ce
+						     #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
+									   " " (funcall (slot-value (funcall  r.cols) begin))
+									   " " (funcall (slot-value (funcall  r.rows) end))
+									   " " (funcall (slot-value (funcall  r.cols) end))
+									   ")"
+									   ))
+
+						     (funcall "ispc::mandelbrot_ispc"
+							      x0 y0
+							      dx dy
+							      buf
+							      (funcall (slot-value (funcall  r.rows) begin))
+							      (funcall (slot-value (funcall  r.cols) begin))
+							      (funcall (slot-value (funcall  r.rows) end))
+							      (funcall (slot-value (funcall  r.cols) end))
+							      )))
+				    #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
+									 (* 1024.0 1024.0))))))
+		       (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
+			 (macroexpand (e "l3 cache hit ratio: " (funcall getL3CacheHitRatio sstate_before
+									 sstate_after)))))
 		     #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 								 (string "/dev/shm/test.pgm")
 								 (|\|| "std::ofstream::out"

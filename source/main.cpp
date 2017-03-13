@@ -42,8 +42,20 @@ int main() {
       return -1;
     }
 
-    for (unsigned int i = 0; (i < 1000); i += 1) {
-      ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
+    {
+      SystemCounterState sstate_before = getSystemCounterState();
+
+      for (unsigned int i = 0; (i < 1000); i += 1) {
+        ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
+      }
+
+      {
+        SystemCounterState sstate_after = getSystemCounterState();
+
+        (std::cout << "l3 cache hit ratio: "
+                   << getL3CacheHitRatio(sstate_before, sstate_after)
+                   << std::endl);
+      }
     }
 
     return 0;
