@@ -60,7 +60,11 @@
 	 ;; line. Two objects allocated by cache_aligned_allocator are
 	 ;; guaranteed to not have false sharing.
 	 ;; std::vector<int, cache_aligned_allocator<int> >;
-	 
+
+	 ;; scalable_allocation_mode(TBBMALLOC_USE_HUGE_PAGES, 1)
+	 ;; enables the use of huge pages by the allocator if
+	 ;; supported for the operating system,
+
 	 ;; #include "tbb/scalable_allocator.h"
 	 ;; 	   void* alignedMalloc(size_t size, size_t align) 
 	 ;;   {
