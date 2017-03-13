@@ -147,6 +147,7 @@
 			 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
 			 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
 			 ;; buf should be aligned to 64 byte boundary
+			 (tbb_init :type "tbb::task_scheduler_init" :ctor (comma-list 4)) ;; explicit number of threads
 			 ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
 			 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
 				    :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
@@ -154,7 +155,8 @@
 				    ))
 		     #+nil (if (== nullptr buf)
 			       (<< "std::cout" (string "error getting aligned buffer")))
-
+		     
+					
 		     #+pcm (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
 		       (case ret
 			 (0 (macroexpand (e "pcm init successfull")))
@@ -168,7 +170,7 @@
 		       
 		       (dotimes (i
 				  1000)
-			 #+nil (funcall "ispc::mandelbrot_ispc"
+			  #+nil (funcall "ispc::mandelbrot_ispc"
 				  x0 y0
 				  dx dy
 				  buf
@@ -203,9 +205,12 @@
 				    #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 									 (* 1024.0 1024.0))))))
 		       #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
-			 (macroexpand (e "instr per clock " (funcall getIPC sstate_before sstate_after)
-
-					 " l3 cache hit ratio: " (funcall getL3CacheHitRatio sstate_before
+			       (macroexpand (e "instr-retir="  (funcall getInstructionsRetired sstate_before sstate_after) 
+					       " instr/clock=" (funcall getIPC sstate_before sstate_after)
+					       " invar-tsc=" (funcall getInvariantTSC sstate_before sstate_after)
+					       " l2-hit-ratio=" (funcall getL2CacheHitRatio sstate_before
+									  sstate_after)
+					 " l3-hit-ratio=" (funcall getL3CacheHitRatio sstate_before
 									  sstate_after)))
 			 (funcall m->cleanup))
 		       )

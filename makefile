@@ -62,7 +62,7 @@ pcm: source/main
 
 
 benchmark: source/main
-	sudo cpufreq-set -c0 -g performance
+	sudo cpufreq-set -c0,1 -g performance
 	sudo cpufreq-set -c1 -g performance
 	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
 	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict

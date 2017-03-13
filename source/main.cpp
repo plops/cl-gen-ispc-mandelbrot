@@ -36,6 +36,7 @@ int main() {
     float y1 = (1.e+0);
     float dx = ((x1 - x0) * ((1.e+0) / 512));
     float dy = ((y1 - y0) * ((1.e+0) / 512));
+    tbb::task_scheduler_init tbb_init(4);
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
     {
@@ -71,7 +72,7 @@ int main() {
     {
       SystemCounterState sstate_before = getSystemCounterState();
 
-      for (unsigned int i = 0; (i < 1000); i += 1) {
+      for (unsigned int i = 0; (i < 10000); i += 1) {
         {
 
           tbb::parallel_for(
@@ -87,10 +88,14 @@ int main() {
       {
         SystemCounterState sstate_after = getSystemCounterState();
 
-        (std::cout << "instr per clock " << getIPC(sstate_before, sstate_after)
-                   << " l3 cache hit ratio: "
-                   << getL3CacheHitRatio(sstate_before, sstate_after)
-                   << std::endl);
+        (std::cout
+         << "instr-retir="
+         << getInstructionsRetired(sstate_before, sstate_after)
+         << " instr/clock=" << getIPC(sstate_before, sstate_after)
+         << " invar-tsc=" << getInvariantTSC(sstate_before, sstate_after)
+         << " l2-hit-ratio=" << getL2CacheHitRatio(sstate_before, sstate_after)
+         << " l3-hit-ratio=" << getL3CacheHitRatio(sstate_before, sstate_after)
+         << std::endl);
 
         m->cleanup();
       }
