@@ -1,15 +1,15 @@
-#include "mandelbrot_ispc.h"
+#include <fstream>
 #include <algorithm>
-#include <cpucounters.h>
-#include <fstream>
-#include <fstream>
-#include <iostream>
-#include <sched.h>
-#include <sstream>
-#include <stdint.h>
-#include <sys/sysinfo.h>
-#include <tbb/tbb.h>
 #include <type_traits>
+#include <iostream>
+#include "mandelbrot_ispc.h"
+#include <stdint.h>
+#include <tbb/tbb.h>
+#include <cpucounters.h>
+#include <sys/sysinfo.h>
+#include <sched.h>
+#include <fstream>
+#include <sstream>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -76,10 +76,10 @@ static void cpu_frequencies_print(unsigned int n) {
 
 int main() {
   {
-    const int number_threads = 4;
+    const int number_threads = 2;
 
     for (unsigned int i = 0; (i < number_threads); i += 1) {
-      cpu_frequency_set(i, 3600000);
+      cpu_frequency_set(i, 2000000);
     }
 
     {
@@ -171,23 +171,78 @@ int main() {
         {
           SystemCounterState sstate_after = getSystemCounterState();
 
-          (std::cout << "instr-retir = "
+          (std::cout << "getBytesReadFromEDC  = "
+                     << getBytesReadFromEDC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getBytesReadFromMC   = "
+                     << getBytesReadFromMC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getBytesWrittenToEDC = "
+                     << getBytesWrittenToEDC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getBytesWrittenToMC  = "
+                     << getBytesWrittenToMC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getConsumedEnergy    = "
+                     << getConsumedEnergy(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getCycles            = "
+                     << getCycles(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getDRAMConsumedEnergy = "
+                     << getDRAMConsumedEnergy(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getIORequestBytesFromMC = "
+                     << getIORequestBytesFromMC(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getInstructionsRetired = "
                      << getInstructionsRetired(sstate_before, sstate_after)
                      << std::endl);
 
-          (std::cout << "instr/clock = " << getIPC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "invaria-tsc = "
+          (std::cout << "getInvariantTSC      = "
                      << getInvariantTSC(sstate_before, sstate_after)
                      << std::endl);
 
-          (std::cout << "l2hit-ratio = "
-                     << getL2CacheHitRatio(sstate_before, sstate_after)
+          (std::cout << "getL2CacheHits       = "
+                     << getL2CacheHits(sstate_before, sstate_after)
                      << std::endl);
 
-          (std::cout << "l3hit-ratio = "
-                     << getL3CacheHitRatio(sstate_before, sstate_after)
+          (std::cout << "getL2CacheMisses     = "
+                     << getL2CacheMisses(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheHits       = "
+                     << getL3CacheHits(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheHitsNoSnoop = "
+                     << getL3CacheHitsNoSnoop(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheHitsSnoop  = "
+                     << getL3CacheHitsSnoop(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheMisses     = "
+                     << getL3CacheMisses(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getLocalMemoryBW     = "
+                     << getLocalMemoryBW(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getRefCycles         = "
+                     << getRefCycles(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getRemoteMemoryBW    = "
+                     << getRemoteMemoryBW(sstate_before, sstate_after)
                      << std::endl);
 
           m->cleanup();

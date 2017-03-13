@@ -191,9 +191,9 @@
 	 (function (main ()
 			 int)
 		   
-		   (let ((number_threads :type "const int" :init 4))
+		   (let ((number_threads :type "const int" :init 2))
 		     (dotimes (i number_threads)
-		       (funcall cpu_frequency_set i 3600000))
+		       (funcall cpu_frequency_set i 2000000))
 		     (let ((cpu_mask :type cpu_set_t))
 		       (funcall CPU_ZERO &cpu_mask)
 		       (dotimes (i number_threads)
@@ -278,23 +278,31 @@
 				#+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 								     (* 1024.0 1024.0))))))
 			 #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
+
+				 ;; grep "64 get" cpucounters.h |grep "(const CounterStateType & before, const CounterStateType & after)"|cut -d "(" -f 1|awk '{print $NF}'|sort|uniq
+				 ,@(loop for call in `(getBytesReadFromEDC
+							      getBytesReadFromMC
+							      getBytesWrittenToEDC
+							      getBytesWrittenToMC
+							      getConsumedEnergy
+							      getCycles
+							      getDRAMConsumedEnergy
+							      getIORequestBytesFromMC
+							      getInstructionsRetired
+							      getInvariantTSC
+							      getL2CacheHits
+							      getL2CacheMisses
+							      getL3CacheHits
+							      getL3CacheHitsNoSnoop
+							      getL3CacheHitsSnoop
+							      getL3CacheMisses
+							      getLocalMemoryBW
+							      ;getPCUClocks
+							      getRefCycles
+							      getRemoteMemoryBW) collect
+					`(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call sstate_before sstate_after))))
+
 				 
-				 (macroexpand (e "instr-retir = "  (funcall getInstructionsRetired sstate_before sstate_after) 
-						 ))
-				 (macroexpand (e 
-						 "instr/clock = " (funcall getIPC sstate_before sstate_after)
-						))
-				 (macroexpand (e 
-						 "invaria-tsc = " (funcall getInvariantTSC sstate_before sstate_after)
-						 ))
-				 (macroexpand (e
-						
-						 "l2hit-ratio = " (funcall getL2CacheHitRatio sstate_before
-									   sstate_after)
-					))
-				 (macroexpand (e 
-						 "l3hit-ratio = " (funcall getL3CacheHitRatio sstate_before
-									   sstate_after)))
 				 (funcall m->cleanup))
 			 (funcall cpu_frequencies_print number_threads)
 			 )
