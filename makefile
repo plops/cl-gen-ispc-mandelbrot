@@ -51,4 +51,22 @@ aps: source/main
 	~/big/APS_2017_lin_478468/aps.sh source/main
 
 pcm: source/main
-	sudo /home/martin/src/pcm/pcm.x -- "source/main" > source/main.pcm
+	sudo cpufreq-set -c0 -g performance
+	sudo cpufreq-set -c1 -g performance
+	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
+	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
+	sudo modprobe msr
+	sudo taskset -c 0,1 /home/martin/src/pcm/pcm.x -- "source/main" > source/main.pcm
+	sudo cpufreq-set -c0 -g powersave
+	sudo cpufreq-set -c1 -g powersave	
+
+
+benchmark: source/main
+	sudo cpufreq-set -c0 -g performance
+	sudo cpufreq-set -c1 -g performance
+	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
+	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
+	sudo modprobe msr
+	sudo taskset -c 0,1 source/main
+	sudo cpufreq-set -c0 -g powersave
+	sudo cpufreq-set -c1 -g powersave	

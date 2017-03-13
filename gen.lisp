@@ -18,8 +18,8 @@
 
 
 (let ((max-iterations 256)
-      (width 64)
-      (height 32)
+      (width 512)
+      (height 512)
       (grain-rows 512)
       (grain-cols 2))
   (progn
@@ -91,7 +91,7 @@
 	 ;; //#endif
 	 ;; }
 	 ;; 	 struct OSPRAY_SDK_INTERFACE __aligned(64) Tile {
-	 ;;     // make sure this tile is 64-byte aligned when alloc'ed
+	 ;;     // make sure this tile is 64-byte aligned when alloced
 	 ;;   void* operator new(size_t size) { return alignedMalloc(size); }       
 	 ;;   void operator delete(void* ptr) { alignedFree(ptr); }      
 	 ;;   void* operator new[](size_t size) { return alignedMalloc(size); }  
@@ -167,7 +167,7 @@
 		     (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 		       
 		       (dotimes (i
-				  100000)
+				  1000)
 			 #+nil (funcall "ispc::mandelbrot_ispc"
 				  x0 y0
 				  dx dy
