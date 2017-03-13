@@ -18,28 +18,28 @@
 
  Core (SKT) | EXEC | IPC  | FREQ  | AFREQ | L3MISS | L2MISS | L3HIT | L2HIT | L3MPI | L2MPI | TEMP
 
-   0    0     1.62   1.51   1.07    1.08      13 K    760 K    0.98    0.38    0.00    0.00     49
-   1    0     1.61   1.51   1.07    1.08      77 K   1420 K    0.94    0.39    0.00    0.00     51
-   2    0     1.62   1.52   1.07    1.08      25 K    779 K    0.96    0.48    0.00    0.00     57
-   3    0     1.61   1.51   1.07    1.08      23 K    831 K    0.97    0.41    0.00    0.00     54
-   4    0     1.62   1.51   1.07    1.08     913      709 K    1.00    0.38    0.00    0.00     49
-   5    0     1.63   1.52   1.07    1.08      14 K    874 K    0.98    0.39    0.00    0.00     51
-   6    0     1.62   1.52   1.07    1.08    5086      697 K    0.99    0.39    0.00    0.00     57
-   7    0     1.64   1.52   1.08    1.08    9451      557 K    0.98    0.46    0.00    0.00     54
+   0    0     0.85   1.30   0.65    0.99      90       19 K    0.98    0.25    0.00    0.00     67
+   1    0     1.60   1.92   0.84    0.93    3252       45 K    0.83    0.37    0.00    0.00     68
+   2    0     1.06   1.36   0.78    0.96     724       25 K    0.93    0.37    0.00    0.00     68
+   3    0     0.96   1.28   0.75    0.95     159       26 K    0.98    0.28    0.00    0.00     69
+   4    0     1.02   1.38   0.74    0.95     162       27 K    0.98    0.24    0.00    0.00     67
+   5    0     0.01   0.70   0.02    0.95     113     2761      0.95    0.38    0.00    0.01     68
+   6    0     1.00   1.31   0.76    0.94     273       23 K    0.96    0.40    0.00    0.00     68
+   7    0     0.99   1.30   0.76    0.95     207       23 K    0.97    0.28    0.00    0.00     69
 ---------------------------------------------------------------------------------------------------------------
- SKT    0     1.62   1.52   1.07    1.08     170 K   6631 K    0.97    0.41    0.00    0.00     49
+ SKT    0     0.94   1.42   0.66    0.95    4980      194 K    0.93    0.33    0.00    0.00     67
 ---------------------------------------------------------------------------------------------------------------
- TOTAL  *     1.62   1.52   1.07    1.08     170 K   6631 K    0.97    0.41    0.00    0.00     N/A
+ TOTAL  *     0.94   1.42   0.66    0.95    4980      194 K    0.93    0.33    0.00    0.00     N/A
 
- Instructions retired:  296 G ; Active cycles:  195 G ; Time (TSC):   22 Gticks ; C0 (active,non-halted) core residency: 98.89 %
+ Instructions retired:  337 M ; Active cycles:  238 M ; Time (TSC):   44 Mticks ; C0 (active,non-halted) core residency: 69.63 %
 
- C1 core residency: 1.09 %; C3 core residency: 0.00 %; C6 core residency: 0.01 %; C7 core residency: 0.02 %;
+ C1 core residency: 16.58 %; C3 core residency: 0.00 %; C6 core residency: 2.99 %; C7 core residency: 10.80 %;
  C2 package residency: 0.00 %; C3 package residency: 0.00 %; C6 package residency: 0.00 %; C7 package residency: 0.00 %; C8 package residency: 0.00 %; C9 package residency: 0.00 %; C10 package residency: 0.00 %;
 
- PHYSICAL CORE IPC                 : 3.03 => corresponds to 75.77 % utilization for cores in active state
- Instructions per nominal CPU cycle: 3.25 => corresponds to 81.14 % core utilization over time interval
+ PHYSICAL CORE IPC                 : 2.83 => corresponds to 70.78 % utilization for cores in active state
+ Instructions per nominal CPU cycle: 1.87 => corresponds to 46.81 % core utilization over time interval
 ---------------------------------------------------------------------------------------------------------------
 MEM (GB)->|  READ |  WRITE |   IO   | CPU energy |
 ---------------------------------------------------------------------------------------------------------------
- SKT   0     0.25     0.12     0.01     431.45     
+ SKT   0     0.00     0.00     0.00       0.58     
 ---------------------------------------------------------------------------------------------------------------

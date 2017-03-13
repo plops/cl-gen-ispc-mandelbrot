@@ -37,7 +37,7 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
   for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
     {
       float y = (y0 + (j * dy));
-      unsigned int i0 = (j * 1024);
+      unsigned int i0 = (j * 16);
 
       foreach (i = output_col_start... output_col_end) {
         {

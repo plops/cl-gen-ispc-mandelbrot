@@ -27,14 +27,14 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    const unsigned int width = 1024;
-    const unsigned int height = 1024;
+    const unsigned int width = 16;
+    const unsigned int height = 16;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    float dx = ((x1 - x0) * ((1.e+0) / 1024));
-    float dy = ((y1 - y0) * ((1.e+0) / 1024));
+    float dx = ((x1 - x0) * ((1.e+0) / 16));
+    float dy = ((y1 - y0) * ((1.e+0) / 16));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
     {
@@ -43,7 +43,7 @@ int main() {
         {
 
           tbb::parallel_for(
-              tbb::blocked_range2d<int, int>(0, 1024, 2, 0, 1024, 512),
+              tbb::blocked_range2d<int, int>(0, 16, 2, 0, 16, 512),
               [=](const tbb::blocked_range2d<int, int> &r) {
                 ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
                                       r.cols().begin(), r.rows().end(),

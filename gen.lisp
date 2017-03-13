@@ -23,8 +23,8 @@
 ;; 1k x 1k   7    0     2.95   2.57   1.15    1.16    7635       80 K    0.90    0.27    0.00    0.00     56
 
 (let ((max-iterations 256)
-      (width 1024)
-      (height 1024)
+      (width 16)
+      (height 16)
       (grain-rows 512)
       (grain-cols 2))
   (progn
