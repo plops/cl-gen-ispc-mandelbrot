@@ -1,5 +1,8 @@
 (push :ispc *features*) ;; for now i have to open cp.lisp and compile it again with C-c C-k, so that foreach works
 
+(push :pcm *features*)
+#+nil
+(delete :pcm *features*)
 
 (eval-when (:compile-toplevel :execute :load-toplevel)
   (ql:quickload :cl-cpp-generator))
@@ -10,6 +13,8 @@
   `(statements (<< "std::cout" ,@(loop for e in body collect
                                       (cond ((stringp e) `(string ,e))
                                             (t e))) "std::endl")))
+
+
 
 
 (let ((max-iterations 256)
@@ -37,6 +42,11 @@
 	 (include "mandelbrot_ispc.h")
 	 (include <stdint.h>)
 	 (include <tbb/tbb.h>)
+	 (include <cpucounters.h>)
+	 (include <sys/sysinfo.h>)
+	 (include <sched.h>)
+	 (include <fstream>)
+	 (include <sstream>)
 	 (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
@@ -90,7 +100,7 @@
 	 ;; //#endif
 	 ;; }
 	 ;; 	 struct OSPRAY_SDK_INTERFACE __aligned(64) Tile {
-	 ;;     // make sure this tile is 64-byte aligned when alloc'ed
+	 ;;     // make sure this tile is 64-byte aligned when alloced
 	 ;;   void* operator new(size_t size) { return alignedMalloc(size); }       
 	 ;;   void operator delete(void* ptr) { alignedFree(ptr); }      
 	 ;;   void* operator new[](size_t size) { return alignedMalloc(size); }  
@@ -133,76 +143,175 @@
 		     (raw "__asm__ __volatile__ (\"rdtsc\" : \"=a\" (low), \"=d\" (high)) ")
 		     (return (|\|| (<< (funcall static_cast<uint64_t> high) 32)
 				   low))))
+	 (function (sys_file_write ((fn :type "std::string")
+				    (str :type "std::string"))
+				   "static void")
+		   (let ((f :type "std::ofstream" :ctor fn))
+		     (<< f str)))
+	 (function (cpu_frequency_set ((cpu :type "unsigned int")
+				       (freq_hz :type "unsigned int"))
+				 "static void")
+		   ;; write performance into /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+		   ;; write the same number into /sys/devices/system/cpu/cpu<cpu>/cpufreq/scaling_{min,max}_freq
+		   (let ((fn :type "std::ostringstream")
+			 (out :type "std::ostringstream"))
+
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_governor"))
+		      (<< out (string "performance"))
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_min_freq"))
+		      (<< out freq_hz)
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))
+		     (statements
+		      (<< fn
+			  (string "/sys/devices/system/cpu/cpu")
+			  cpu
+			  (string "/cpufreq/scaling_max_freq"))
+		      (<< out freq_hz)
+		      (funcall sys_file_write (funcall fn.str) (funcall out.str)))))
+	 (function (cpu_frequencies_print ((n :type "unsigned int")) "static void")
+		   (dotimes (i n)
+		     (let ((os :type "std::ostringstream"))
+		       (<< os
+			   (string "/sys/devices/system/cpu/cpu")
+			   i
+			   (string "/cpufreq/cpuinfo_cur_freq"))
+		       (let ((f :type "std::ifstream" :ctor (funcall os.str))
+			     (line :type "std::string"))
+			 (funcall "std::getline" f line)
+			 (macroexpand (e "processor " i " runs at " line " Hz"))))))
 	 (function (main ()
 			 int)
-		   (let ((width :type "const unsigned int" :init ,width)
-			 (height :type "const unsigned int" :init ,height)
-			 (x0 :type float :init -2.0)
-			 (x1 :type float :init 1.0)
-			 (y0 :type float :init -1.0)
-			 (y1 :type float :init 1.0)
-			 (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
-			 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
-			 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
-			 ;; buf should be aligned to 64 byte boundary
-			 ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
-			 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
-				    :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
+		   
+		   (let ((number_threads :type "const int" :init 4))
+		     (dotimes (i number_threads)
+		       (funcall cpu_frequency_set i 3600000))
+		     (let ((cpu_mask :type cpu_set_t))
+		       (funcall CPU_ZERO &cpu_mask)
+		       (dotimes (i number_threads)
+			 (funcall CPU_SET i &cpu_mask))
+		       (let ((err :type int :init (funcall sched_setaffinity (funcall getpid) (funcall sizeof cpu_mask) &cpu_mask)))
+			 (if (!= 0 err)
+			     (macroexpand (e "setaffinity error")))
+			 (macroexpand (e "tried to use " number_threads
+					 " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
+					 (funcall "tbb::task_scheduler_init::default_num_threads")
+					 " tbb::tbb_thread::hardware_concurrency="
+					 (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
+			 
+			 (funcall cpu_frequencies_print number_threads)
+			 ))
+		     (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
+				 (width :type "const unsigned int" :init ,width)
+				 (height :type "const unsigned int" :init ,height)
+				 (x0 :type float :init -2.0)
+				 (x1 :type float :init 1.0)
+				 (y0 :type float :init -1.0)
+				 (y1 :type float :init 1.0)
+				 (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
+				 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
+				 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
+				 ;; buf should be aligned to 64 byte boundary
+				 (tbb_init :type "tbb::task_scheduler_init" :ctor (comma-list number_threads)) ;; explicit number of threads
+				 ((aref buf (+ 32 (* width height))) :type "static int" :extra (raw "__attribute__((aligned(64)))"))
+				 #+nil (buf :type "int*" ;"std::unique_ptr< int >"
+					    :init (funcall reinterpret_cast<int*> (funcall aligned_alloc 1024  (/ (* 1024 (* ,width height))	 1024)))
 					;:ctor (new (aref int (* ,width height)))
-				    ))
-		     #+nil (if (== nullptr buf)
-			       (<< "std::cout" (string "error getting aligned buffer")))
-	      
-		     (dotimes (i
-				1)
-		       (funcall "ispc::mandelbrot_ispc"
-				x0 y0
-				dx dy
-				buf
-				0 0
-				height
-				width
-				)
-		       #+nil (let ()#+nil ((start :init (funcall rdtsc)))
-				  #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-				  #+nil (funcall "tbb::parallel_for"
-						 (funcall "tbb::blocked_range2d<int,int>"
-							  0 ,width ,grain-cols
-							  0 ,height ,grain-rows)
-						 (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
-						   ;; x0 y0 dx dy o rs cs re ce
-						   #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
-									 " " (funcall (slot-value (funcall  r.cols) begin))
-									 " " (funcall (slot-value (funcall  r.rows) end))
-									 " " (funcall (slot-value (funcall  r.cols) end))
-									 ")"
-									 ))
+					    ))
+		       #+nil (if (== nullptr buf)
+				 (<< "std::cout" (string "error getting aligned buffer")))
+		       
+		       
+		       #+pcm (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
+			       (case ret
+				 (0 (macroexpand (e "pcm init successfull")))
+				 (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
+				 (2 (macroexpand (e "pcm init pmu busy"))
+				    (funcall m->resetPMU)
+				    (setf ret (funcall m->program)))
+				 (t (macroexpand (e "pcm init unknown error")))))
 
-						   (funcall "ispc::mandelbrot_ispc"
-							    x0 y0
-							    dx dy
-							    buf
-							    (funcall (slot-value (funcall  r.rows) begin))
-							    (funcall (slot-value (funcall  r.cols) begin))
-							    (funcall (slot-value (funcall  r.rows) end))
-							    (funcall (slot-value (funcall  r.cols) end))
-							    )))
-				  #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
-								       (* 1024.0 1024.0))))))
-		     #+nil (let ((f :type "std::ofstream" :ctor (comma-list
-								 (string "/dev/shm/test.pgm")
-								 (|\|| "std::ofstream::out"
-								       "std::ofstream::binary"
-								       "std::ofstream::trunc"))
-				    )
-				 (bufu8 :type "unsigned char*"  :ctor (new (aref "unsigned char" (* ,width height)))
+		       (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
+			 
+			 (dotimes (i
+				    1000)
+			   #+nil (funcall "ispc::mandelbrot_ispc"
+					  x0 y0
+					  dx dy
+					  buf
+					  0 0
+					  height
+					  width
+					  )
+			   (let ()#+nil ((start :init (funcall rdtsc)))
+				#+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
+				(funcall "tbb::parallel_for"
+					 (funcall "tbb::blocked_range2d<int,int>"
+						  0 ,width ,grain-cols
+						  0 ,height ,grain-rows)
+					 (lambda (((r :type "const tbb::blocked_range2d<int,int>&")) :captures ("="))
+					   ;; x0 y0 dx dy o rs cs re ce
+					   #+nil (macroexpand (e "(" (funcall (slot-value (funcall  r.rows) begin))
+								 " " (funcall (slot-value (funcall  r.cols) begin))
+								 " " (funcall (slot-value (funcall  r.rows) end))
+								 " " (funcall (slot-value (funcall  r.cols) end))
+								 ")"
+								 ))
+
+					   (funcall "ispc::mandelbrot_ispc"
+						    x0 y0
+						    dx dy
+						    buf
+						    (funcall (slot-value (funcall  r.rows) begin))
+						    (funcall (slot-value (funcall  r.cols) begin))
+						    (funcall (slot-value (funcall  r.rows) end))
+						    (funcall (slot-value (funcall  r.cols) end))
+						    )))
+				#+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
+								     (* 1024.0 1024.0))))))
+			 #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
+				 
+				 (macroexpand (e "instr-retir = "  (funcall getInstructionsRetired sstate_before sstate_after) 
+						 ))
+				 (macroexpand (e 
+						 "instr/clock = " (funcall getIPC sstate_before sstate_after)
+						))
+				 (macroexpand (e 
+						 "invaria-tsc = " (funcall getInvariantTSC sstate_before sstate_after)
+						 ))
+				 (macroexpand (e
+						
+						 "l2hit-ratio = " (funcall getL2CacheHitRatio sstate_before
+									   sstate_after)
 					))
-			     (dotimes (i (* width height))
-			       (setf (aref bufu8 i) (funcall "std::min" 255 (funcall "std::max" 0 (aref buf i)))))
-			     (<< f (string "P5\\n") width (string " ")  height  (string "\\n255\\n"))
-		
-			     (funcall f.write (funcall reinterpret_cast<char*> bufu8) (* width height)))
-		     (return 0))))))
+				 (macroexpand (e 
+						 "l3hit-ratio = " (funcall getL3CacheHitRatio sstate_before
+									   sstate_after)))
+				 (funcall m->cleanup))
+			 (funcall cpu_frequencies_print number_threads)
+			 )
+		       #+nil (let ((f :type "std::ofstream" :ctor (comma-list
+								   (string "/dev/shm/test.pgm")
+								   (|\|| "std::ofstream::out"
+									 "std::ofstream::binary"
+									 "std::ofstream::trunc"))
+				      )
+				   (bufu8 :type "unsigned char*"  :ctor (new (aref "unsigned char" (* ,width height)))
+					  ))
+			       (dotimes (i (* width height))
+				 (setf (aref bufu8 i) (funcall "std::min" 255 (funcall "std::max" 0 (aref buf i)))))
+			       (<< f (string "P5\\n") width (string " ")  height  (string "\\n255\\n"))
+			       
+			       (funcall f.write (funcall reinterpret_cast<char*> bufu8) (* width height)))
+		       (return 0)))))))
    (sb-ext:run-program "/usr/bin/clang-format" (list "-i" (namestring *main-cpp-filename*))))
 
   (progn
