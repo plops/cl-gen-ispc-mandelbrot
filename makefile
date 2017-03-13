@@ -62,11 +62,15 @@ pcm: source/main
 
 
 benchmark: source/main
-	sudo cpufreq-set -c0,1 -g performance
+	sudo cpufreq-set -c0 -g performance
 	sudo cpufreq-set -c1 -g performance
+	sudo cpufreq-set -c2 -g performance
+	sudo cpufreq-set -c3 -g performance
 	echo 0 | sudo tee /proc/sys/kernel/nmi_watchdog
 	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
 	sudo modprobe msr
-	sudo taskset -c 0,1 source/main
+	sudo taskset -a 0x00000007 source/main
 	sudo cpufreq-set -c0 -g powersave
-	sudo cpufreq-set -c1 -g powersave	
+	sudo cpufreq-set -c1 -g powersave
+	sudo cpufreq-set -c2 -g powersave
+	sudo cpufreq-set -c3 -g powersave	
