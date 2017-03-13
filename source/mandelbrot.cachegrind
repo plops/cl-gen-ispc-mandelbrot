@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
-I1 cache:         32768 B, 64 B, 4-way associative
+I1 cache:         32768 B, 64 B, 8-way associative
 D1 cache:         32768 B, 64 B, 8-way associative
-LL cache:         3145728 B, 64 B, 12-way associative
+LL cache:         8388608 B, 64 B, 16-way associative
 Command:          source/main
 Data file:        source/cache.out
 Events recorded:  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw Bc Bcm Bi Bim
@@ -13,23 +13,82 @@ User annotated:   /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.i
 Auto-annotation:  off
 
 --------------------------------------------------------------------------------
-       Ir  I1mr  ILmr      Dr   D1mr  DLmr      Dw  D1mw  DLmw      Bc    Bcm    Bi Bim 
+        Ir  I1mr  ILmr        Dr   D1mr  DLmr        Dw  D1mw  DLmw        Bc    Bcm    Bi Bim 
 --------------------------------------------------------------------------------
-1,959,507 2,625 2,426 503,809 11,465 6,373 184,300 2,315 1,708 290,824 13,703 7,876 979  PROGRAM TOTALS
+28,446,513 1,663 1,576 4,655,879 15,781 8,671 1,127,290 6,698 5,812 1,265,515 20,939 5,722 767  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
-       Ir  I1mr  ILmr      Dr   D1mr  DLmr      Dw  D1mw  DLmw      Bc    Bcm    Bi Bim  file:function
+        Ir I1mr ILmr        Dr  D1mr  DLmr      Dw  D1mw  DLmw      Bc   Bcm    Bi Bim  file:function
 --------------------------------------------------------------------------------
-1,909,929 2,155 1,970 488,729 11,118 6,305 178,227 2,147 1,562 282,134 12,748 7,671 950  ???:???
-   10,069    10    10   2,332    163    45      16     0     0   2,438    451     2   2  ???:_dl_addr
-    7,552     4     4   2,176      4     0   1,024     0     0   1,408     13   128   1  ???:btowc
-    7,392     5     5   2,744      1     0     224     0     0   1,736     50     0   0  ???:std::locale::_Impl::_M_install_facet(std::locale::id const*, std::locale::facet const*)
-    2,757     5     5       5      0     0     810    20    20     536     17     0   0  ???:std::ctype<wchar_t>::_M_initialize_ctype()
-    2,387     0     0   2,387      0     0       0     0     0       0      0     0   0  ???:__VLTRegisterPair(void**, void const*, unsigned long, void const*)
-    2,352     4     4     816     14     0     624     0     0     144      4    48   8  ???:__dynamic_cast
+25,961,476   11   11 4,025,781     2     2 908,367 4,096 4,096 896,585 4,634     0   0  /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc:mandelbrot_ispc
+   952,731   10   10   159,008 1,981 1,662  53,113    23     0 119,285 2,337     0   0  /build/glibc-t3gR2i/glibc-2.23/elf/dl-lookup.c:_dl_lookup_symbol_x
+   734,464   35   35   263,181 4,369   862 102,962    21     0 117,325 6,403   246   4  /build/glibc-t3gR2i/glibc-2.23/elf/dl-lookup.c:do_lookup_x
+   272,709   26   26    59,192 3,448 2,958  26,678 1,773 1,034  49,091 1,084 3,429  42  /build/glibc-t3gR2i/glibc-2.23/elf/../sysdeps/x86_64/dl-machine.h:_dl_relocate_object
+   115,536    6    6    39,056   419   224  13,091    23     0  17,441   117     0   0  /build/glibc-t3gR2i/glibc-2.23/elf/dl-lookup.c:check_match
+   108,468   95   70    26,905   301    72       0     0     0  13,216   930   510 229  /build/glibc-t3gR2i/glibc-2.23/string/../sysdeps/x86_64/multiarch/../strcmp.S:strcmp
+    89,660   13   13    27,865 2,451 1,484   3,460     4     0  11,870   105     0   0  /build/glibc-t3gR2i/glibc-2.23/elf/do-rel.h:_dl_relocate_object
+    64,452    9    9    15,709 1,184   910      33     1     0  14,708 2,278     4   2  /build/glibc-t3gR2i/glibc-2.23/elf/dl-addr.c:_dl_addr
 
 --------------------------------------------------------------------------------
 -- User-annotated source: /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
 --------------------------------------------------------------------------------
-  No information has been collected for /home/martin/stage/cl-gen-ispc-mandelbrot/source//mandelbrot.ispc
+       Ir I1mr ILmr        Dr D1mr DLmr      Dw  D1mw  DLmw      Bc   Bcm Bi Bim 
+
+        .    .    .         .    .    .       .     .     .       .     .  .   .  static inline int mandel(float c_re, float c_im) {
+        .    .    .         .    .    .       .     .     .       .     .  .   .    {
+        .    .    .         .    .    .       .     .     .       .     .  .   .      float z_re = c_re;
+        .    .    .         .    .    .       .     .     .       .     .  .   .      float z_im = c_im;
+        .    .    .         .    .    .       .     .     .       .     .  .   .      int ret = 0;
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+7,139,904    2    2 1,337,196    0    0       0     0     0 445,732 1,679  0   0      for (unsigned int i = 0; (i < 256); i += 1) {
+        .    .    .         .    .    .       .     .     .       .     .  .   .        {
+  891,464    0    0         0    0    0       0     0     0       0     0  0   0          float re2 = (z_re * z_re);
+1,782,928    0    0         0    0    0       0     0     0       0     0  0   0          float im2 = (z_im * z_im);
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+3,120,124    1    1   445,732    1    1       0     0     0       0     0  0   0          if (((4.e+0) < (re2 + im2))) {
+  891,464    0    0         0    0    0       0     0     0       0     0  0   0            ret = i;
+3,568,293    1    1         0    0    0       0     0     0 445,732 2,492  0   0            break;
+        .    .    .         .    .    .       .     .     .       .     .  .   .          }
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+        .    .    .         .    .    .       .     .     .       .     .  .   .          {
+  886,590    0    0         0    0    0       0     0     0       0     0  0   0            float new_re = ((z_re * z_re) - (z_im * z_im));
+  886,590    0    0         0    0    0       0     0     0       0     0  0   0            float new_im = ((2.e+0) * z_re * z_im);
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+2,216,475    0    0 1,329,885    0    0       0     0     0       0     0  0   0            z_re = (c_re + new_re);
+3,556,108    1    1   891,464    0    0       0     0     0       0     0  0   0            z_im = (c_im + new_im);
+        .    .    .         .    .    .       .     .     .       .     .  .   .          }
+        .    .    .         .    .    .       .     .     .       .     .  .   .        }
+        .    .    .         .    .    .       .     .     .       .     .  .   .      }
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+        .    .    .         .    .    .       .     .     .       .     .  .   .      return ret;
+        .    .    .         .    .    .       .     .     .       .     .  .   .    }
+        .    .    .         .    .    .       .     .     .       .     .  .   .  }
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+        .    .    .         .    .    .       .     .     .       .     .  .   .  export void mandelbrot_ispc(uniform float x0, uniform float y0,
+        .    .    .         .    .    .       .     .     .       .     .  .   .                              uniform float dx, uniform float dy,
+        .    .    .         .    .    .       .     .     .       .     .  .   .                              uniform int output[], uniform int output_row_start,
+        .    .    .         .    .    .       .     .     .       .     .  .   .                              uniform int output_col_start,
+        .    .    .         .    .    .       .     .     .       .     .  .   .                              uniform int output_row_end,
+        .    .    .         .    .    .       .     .     .       .     .  .   .                              uniform int output_col_end) {
+        7    1    1         0    0    0       4     0     0       1     0  0   0    for (uniform int j = output_row_start; (j < output_row_end); j += 1) {
+        .    .    .         .    .    .       .     .     .       .     .  .   .      {
+    5,120    0    0     1,024    0    0     512     0     0     512     0  0   0        float y = (y0 + (j * dy));
+    1,024    1    1         0    0    0       0     0     0       0     0  0   0        unsigned int i0 = (j * 128);
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+   24,586    2    2     8,192    1    1       0     0     0   4,096   459  0   0        foreach (i = output_col_start... output_col_end) {
+        .    .    .         .    .    .       .     .     .       .     .  .   .          {
+  973,389    2    2    12,288    0    0 899,659     0     0       0     0  0   0            float x = (x0 + (i * dx));
+        .    .    .         .    .    .       .     .     .       .     .  .   .            int index = (i + i0);
+        .    .    .         .    .    .       .     .     .       .     .  .   .  
+   17,410    0    0         0    0    0   8,192 4,096 4,096     512     4  0   0            output[index] = mandel(x, y);
+        .    .    .         .    .    .       .     .     .       .     .  .   .          }
+        .    .    .         .    .    .       .     .     .       .     .  .   .        }
+        .    .    .         .    .    .       .     .     .       .     .  .   .      }
+        .    .    .         .    .    .       .     .     .       .     .  .   .    }
+        .    .    .         .    .    .       .     .     .       .     .  .   .  }
+
+--------------------------------------------------------------------------------
+Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw Bc Bcm Bi Bim 
+--------------------------------------------------------------------------------
+91    1    1 86    0    0 81   61   70 71  22  0   0  percentage of events annotated
 

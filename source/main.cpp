@@ -1,10 +1,11 @@
-#include <fstream>
-#include <algorithm>
-#include <type_traits>
-#include <iostream>
 #include "mandelbrot_ispc.h"
+#include <algorithm>
+#include <cpucounters.h>
+#include <fstream>
+#include <iostream>
 #include <stdint.h>
 #include <tbb/tbb.h>
+#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -26,17 +27,17 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    const unsigned int width = 512;
+    const unsigned int width = 128;
     const unsigned int height = 512;
     float x0 = (-2.e+0);
     float x1 = (1.e+0);
     float y0 = (-1.e+0);
     float y1 = (1.e+0);
-    float dx = ((x1 - x0) * ((1.e+0) / 512));
+    float dx = ((x1 - x0) * ((1.e+0) / 128));
     float dy = ((y1 - y0) * ((1.e+0) / 512));
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-    for (unsigned int i = 0; (i < 1); i += 1) {
+    for (unsigned int i = 0; (i < 1000); i += 1) {
       ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
     }
 

@@ -13,7 +13,7 @@
 
 
 (let ((max-iterations 256)
-      (width 512)
+      (width 128)
       (height 512)
       (grain-rows 512)
       (grain-cols 2))
@@ -37,6 +37,7 @@
 	 (include "mandelbrot_ispc.h")
 	 (include <stdint.h>)
 	 (include <tbb/tbb.h>)
+	 (include <cpucounters.h>)
 	 (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
@@ -149,7 +150,7 @@
 			       (<< "std::cout" (string "error getting aligned buffer")))
 	      
 		     (dotimes (i
-				1)
+				1000)
 		       (funcall "ispc::mandelbrot_ispc"
 				x0 y0
 				dx dy

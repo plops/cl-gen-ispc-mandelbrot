@@ -1,10 +1,18 @@
 #CXX=/opt/intel/compilers_and_libraries/linux/bin/intel64/icc
-CXX=clang++
+#CXX=clang++
+CXX=g++
 CXXFLAGS=-g -O3  -fstack-protector-strong -fident -fno-lto -fasynchronous-unwind-tables -Wall -Wextra -pedantic-errors -Wsign-promo -Wnon-virtual-dtor -Winit-self -Wno-deprecated-declarations -pipe -D_FILE_OFFSET_BITS=64 -march=native   -ffast-math --std=c++11
+
+#--std=gnu++1z
+
+#--std=c++11
+
+# pcm needs to be compiled with g++, clang++ gives this error: /home/martin/src/pcm/types.h:298:9: error: anonymous types declared in an anonymous union are an extension
+CXXINC = -I/home/martin/src/pcm
 
 # --std=gnu++1y
 source/main: source/main.cpp source/mandelbrot_ispc.o
-	$(CXX) $(CXXFLAGS) -o source/main source/mandelbrot_ispc.o source/main.cpp -ltbb
+	$(CXX) $(CXXFLAGS) -o source/main source/mandelbrot_ispc.o source/main.cpp -ltbb $(CXXINC)
 
 source/mandelbrot_ispc.o: source/mandelbrot.ispc
 	ispc -g -O3   --opt=fast-math source/mandelbrot.ispc -o source/mandelbrot_ispc.o -h  source/mandelbrot_ispc.h  --target=avx2-i32x16 --opt=force-aligned-memory
