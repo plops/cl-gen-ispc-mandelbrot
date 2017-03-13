@@ -191,7 +191,7 @@
 	 (function (main ()
 			 int)
 		   
-		   (let ((number_threads :type "const int" :init 2))
+		   (let ((number_threads :type "const int" :init 4))
 		     (dotimes (i number_threads)
 		       (funcall cpu_frequency_set i 2000000))
 		     (let ((cpu_mask :type cpu_set_t))
@@ -299,8 +299,19 @@
 							      getLocalMemoryBW
 							      ;getPCUClocks
 							      getRefCycles
-							      getRemoteMemoryBW) collect
+							      getRemoteMemoryBW
+							      getL2CacheHitRatio
+							      getL3CacheHitRatio
+							      getIPC) collect
 					`(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call sstate_before sstate_after))))
+				 ,@(loop for call in `(getPCUFrequency
+						       getMaxIPC
+						       getJoulesPerEnergyUnit
+						       getNominalFrequency
+						       getQPILinksPerSocket
+						       getPCUFrequency
+						       ) collect
+					`(macroexpand (e ,(format nil "~20a = " call) (funcall (slot->value m ,call)))))
 
 				 
 				 (funcall m->cleanup))

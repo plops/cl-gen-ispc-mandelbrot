@@ -76,7 +76,7 @@ static void cpu_frequencies_print(unsigned int n) {
 
 int main() {
   {
-    const int number_threads = 2;
+    const int number_threads = 4;
 
     for (unsigned int i = 0; (i < number_threads); i += 1) {
       cpu_frequency_set(i, 2000000);
@@ -243,6 +243,35 @@ int main() {
 
           (std::cout << "getRemoteMemoryBW    = "
                      << getRemoteMemoryBW(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL2CacheHitRatio   = "
+                     << getL2CacheHitRatio(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getL3CacheHitRatio   = "
+                     << getL3CacheHitRatio(sstate_before, sstate_after)
+                     << std::endl);
+
+          (std::cout << "getIPC               = "
+                     << getIPC(sstate_before, sstate_after) << std::endl);
+
+          (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
+                     << std::endl);
+
+          (std::cout << "getMaxIPC            = " << m->getMaxIPC()
+                     << std::endl);
+
+          (std::cout << "getJoulesPerEnergyUnit = "
+                     << m->getJoulesPerEnergyUnit() << std::endl);
+
+          (std::cout << "getNominalFrequency  = " << m->getNominalFrequency()
+                     << std::endl);
+
+          (std::cout << "getQPILinksPerSocket = " << m->getQPILinksPerSocket()
+                     << std::endl);
+
+          (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
                      << std::endl);
 
           m->cleanup();
