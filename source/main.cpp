@@ -27,7 +27,6 @@ uint64_t rdtsc() {
 
 int main() {
   {
-    PCM *m = PCM::getInstance();
     const unsigned int width = 1024;
     const unsigned int height = 1024;
     float x0 = (-2.e+0);
@@ -39,51 +38,18 @@ int main() {
     static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
     {
-      auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
 
-      switch (ret) {
-      case 0: {
-        (std::cout << "pcm init successfull" << std::endl);
+      for (unsigned int i = 0; (i < 1000); i += 1) {
+        {
 
-        break;
-      }
-      case 1: {
-        (std::cout << "pcm init msr access denied, try running with sudo"
-                   << std::endl);
-
-        break;
-      }
-      case 2: {
-        (std::cout << "pcm init pmu busy" << std::endl);
-
-        m->resetPMU();
-        ret = m->program();
-        break;
-      }
-      default: {
-        (std::cout << "pcm init unknown error" << std::endl);
-
-        break;
-      }
-      }
-    }
-
-    {
-      SystemCounterState sstate_before = getSystemCounterState();
-
-      for (unsigned int i = 0; (i < 100); i += 1) {
-        ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, 0, 0, height, width);
-      }
-
-      {
-        SystemCounterState sstate_after = getSystemCounterState();
-
-        (std::cout << "instr per clock " << getIPC(sstate_before, sstate_after)
-                   << " l3 cache hit ratio: "
-                   << getL3CacheHitRatio(sstate_before, sstate_after)
-                   << std::endl);
-
-        m->cleanup();
+          tbb::parallel_for(
+              tbb::blocked_range2d<int, int>(0, 1024, 2, 0, 1024, 512),
+              [=](const tbb::blocked_range2d<int, int> &r) {
+                ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
+                                      r.cols().begin(), r.rows().end(),
+                                      r.cols().end());
+              });
+        }
       }
     }
 

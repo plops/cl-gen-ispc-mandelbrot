@@ -1,6 +1,9 @@
 (push :ispc *features*) ;; for now i have to open cp.lisp and compile it again with C-c C-k, so that foreach works
 
 (push :pcm *features*)
+#+nil
+(delete :pcm *features*)
+
 (eval-when (:compile-toplevel :execute :load-toplevel)
   (ql:quickload :cl-cpp-generator))
 
@@ -162,7 +165,6 @@
 			 (0 (macroexpand (e "pcm init successfull")))
 			 (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
 			 (2 (macroexpand (e "pcm init pmu busy"))
-			    #+nil (funcall "PCM::cleanupPMU")
 			    (funcall m->resetPMU)
 			    (setf ret (funcall m->program)))
 			 (t (macroexpand (e "pcm init unknown error")))))
@@ -170,8 +172,8 @@
 		     (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 		       
 		       (dotimes (i
-				  100)
-			 (funcall "ispc::mandelbrot_ispc"
+				  1000)
+			 #+nil (funcall "ispc::mandelbrot_ispc"
 				  x0 y0
 				  dx dy
 				  buf
@@ -179,9 +181,9 @@
 				  height
 				  width
 				  )
-			 #+nil (let ()#+nil ((start :init (funcall rdtsc)))
+			 (let ()#+nil ((start :init (funcall rdtsc)))
 				    #+nil (funcall "ispc::mandelbrot_ispc" x0 y0 x1 y1 #+nil width #+nil height buf)
-				    #+nil (funcall "tbb::parallel_for"
+				    (funcall "tbb::parallel_for"
 						   (funcall "tbb::blocked_range2d<int,int>"
 							    0 ,width ,grain-cols
 							    0 ,height ,grain-rows)
