@@ -10,11 +10,18 @@
   `(statements (<< "std::cout" ,@(loop for e in body collect
                                       (cond ((stringp e) `(string ,e))
                                             (t e))) "std::endl")))
+;;         Core (SKT) | EXEC | IPC  | FREQ  | AFREQ | L3MISS | L2MISS | L3HIT | L2HIT | L3MPI | L2MPI | TEMP
 
+;; 512x512   7    0     2.99   2.57   1.16    1.17    2911      194 K    0.98    0.22    0.00    0.00     57
+;; 512x512   7    0     2.98   2.57   1.16    1.17    2180      195 K    0.99    0.21    0.00    0.00     58
+;;   64x64   7    0     2.81   2.56   1.10    1.11    2645       17 K    0.85    0.51    0.00    0.00     59
+;;   32x32   7    0     2.87   2.53   1.14    1.15    1236     9928      0.87    0.44    0.00    0.00     59
+;;   32x32   7    0     2.95   2.57   1.15    1.17    1540       10 K    0.84    0.40    0.00    0.00     58
+;; 1k x 1k   7    0     2.95   2.57   1.15    1.16    7635       80 K    0.90    0.27    0.00    0.00     56
 
 (let ((max-iterations 256)
-      (width 128)
-      (height 512)
+      (width 1024)
+      (height 1024)
       (grain-rows 512)
       (grain-cols 2))
   (progn
@@ -131,7 +138,7 @@
 				   low))))
 	 (function (main ()
 			 int)
-		   (let ((m :type "PCM*" :init (funcall "PCM::getInstance"))
+		   (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
 			 (width :type "const unsigned int" :init ,width)
 			 (height :type "const unsigned int" :init ,height)
 			 (x0 :type float :init -2.0)
@@ -150,13 +157,19 @@
 		     #+nil (if (== nullptr buf)
 			       (<< "std::cout" (string "error getting aligned buffer")))
 
-		     (if (!= "PCM::Success" (funcall m->program))
-			 (return -1))
+		     #+pcm (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
+		       (case ret
+			 (0 (macroexpand (e "pcm init successfull")))
+			 (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
+			 (2 (macroexpand (e "pcm init pmu busy"))
+			    #+nil (funcall "PCM::cleanupPMU")
+			    (setf ret (funcall m->program)))
+			 (t (macroexpand (e "pcm init unknown error")))))
 
 		     (let ((sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 		       
 		       (dotimes (i
-				  1000)
+				  100)
 			 (funcall "ispc::mandelbrot_ispc"
 				  x0 y0
 				  dx dy
@@ -191,9 +204,13 @@
 							      )))
 				    #+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 									 (* 1024.0 1024.0))))))
-		       (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
-			 (macroexpand (e "l3 cache hit ratio: " (funcall getL3CacheHitRatio sstate_before
-									 sstate_after)))))
+		       #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
+			 (macroexpand (e "instr per clock " (funcall getIPC sstate_before sstate_after)
+
+					 " l3 cache hit ratio: " (funcall getL3CacheHitRatio sstate_before
+									  sstate_after)))
+			 (funcall m->cleanup))
+		       )
 		     #+nil (let ((f :type "std::ofstream" :ctor (comma-list
 								 (string "/dev/shm/test.pgm")
 								 (|\|| "std::ofstream::out"

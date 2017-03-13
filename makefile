@@ -50,3 +50,5 @@ aps: source/main
 	echo 0 | sudo tee  /proc/sys/kernel/kptr_restrict
 	~/big/APS_2017_lin_478468/aps.sh source/main
 
+pcm: source/main
+	sudo /home/martin/src/pcm/pcm.x -- "source/main" > source/main.pcm
