@@ -188,6 +188,74 @@
 			     (line :type "std::string"))
 			 (funcall "std::getline" f line)
 			 (macroexpand (e "processor " i " runs at " line " Hz"))))))
+	 #+pcm
+	 (function (pcm_init ((m :type PCM*)) "static void")
+				 (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
+				   (case ret
+				     (0 (macroexpand (e "pcm init successfull")))
+				     (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
+				     (2 (macroexpand (e "pcm init pmu busy"))
+					(funcall m->resetPMU)
+					(setf ret (funcall m->program)))
+				     (t (macroexpand (e "pcm init unknown error"))))))
+	 #+pcm (function (pcm_print ((m :type PCM*)
+				     (before :type SystemCounterState&)
+				     )
+				    "static void")
+				   (let ((after :type SystemCounterState :init (funcall getSystemCounterState)))
+
+				     ;; grep "64 get" cpucounters.h |grep "(const CounterStateType & before, const CounterStateType & after)"|cut -d "(" -f 1|awk '{print $NF}'|sort|uniq
+				     ,@(loop for call in `(getBytesReadFromEDC
+							   getBytesReadFromMC
+							   getBytesWrittenToEDC
+							   getBytesWrittenToMC
+							   getConsumedEnergy
+							   getCycles
+							   getDRAMConsumedEnergy
+							   getIORequestBytesFromMC
+							   getInstructionsRetired
+							   getInvariantTSC
+							   getL2CacheHits
+							   getL2CacheMisses
+							   getL3CacheHits
+							   getL3CacheHitsNoSnoop
+							   getL3CacheHitsSnoop
+							   getL3CacheMisses
+							   getLocalMemoryBW
+					;getPCUClocks
+							   getRefCycles
+							   getRemoteMemoryBW
+							   getL2CacheHitRatio
+							   getL3CacheHitRatio
+
+							   
+							   getCoreIPC
+							   getTotalExecUsage
+							   getQPItoMCTrafficRatio
+							   getConsumedJoules
+							   getDRAMConsumedJoules
+							   getIPC
+							   getExecUsage
+							   getAverageFrequency
+							   getActiveAverageFrequency
+							   getRelativeFrequency
+							   getActiveRelativeFrequency
+							   getCyclesLostDueL3CacheMisses
+							   getCyclesLostDueL2CacheMisses
+							   getL2CacheHitRatio
+							   getL3CacheHitRatio
+							   ) collect
+					    `(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call before after))))
+				     ,@(loop for call in `(getPCUFrequency
+							   getMaxIPC
+							   getJoulesPerEnergyUnit
+							   getNominalFrequency
+							   getQPILinksPerSocket
+							   getPCUFrequency
+							   ) collect
+					    `(macroexpand (e ,(format nil "~20a = " call) (funcall (slot->value m ,call)))))
+
+				     ))
 	 (function (main ()
 			 int)
 		   
@@ -230,14 +298,9 @@
 				 (<< "std::cout" (string "error getting aligned buffer")))
 		       
 		       
-		       #+pcm (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
-			       (case ret
-				 (0 (macroexpand (e "pcm init successfull")))
-				 (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
-				 (2 (macroexpand (e "pcm init pmu busy"))
-				    (funcall m->resetPMU)
-				    (setf ret (funcall m->program)))
-				 (t (macroexpand (e "pcm init unknown error")))))
+		       #+pcm
+		       (funcall pcm_init m)
+		       
 
 		       (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 			 
@@ -277,61 +340,9 @@
 						    )))
 				#+nil (macroexpand (e "mcycles: " (/ (- (funcall rdtsc) start)
 								     (* 1024.0 1024.0))))))
-			 #+pcm (let ((sstate_after :type SystemCounterState :init (funcall getSystemCounterState)))
-
-				 ;; grep "64 get" cpucounters.h |grep "(const CounterStateType & before, const CounterStateType & after)"|cut -d "(" -f 1|awk '{print $NF}'|sort|uniq
-				 ,@(loop for call in `(getBytesReadFromEDC
-						       getBytesReadFromMC
-						       getBytesWrittenToEDC
-						       getBytesWrittenToMC
-						       getConsumedEnergy
-						       getCycles
-						       getDRAMConsumedEnergy
-						       getIORequestBytesFromMC
-						       getInstructionsRetired
-						       getInvariantTSC
-						       getL2CacheHits
-						       getL2CacheMisses
-						       getL3CacheHits
-						       getL3CacheHitsNoSnoop
-						       getL3CacheHitsSnoop
-						       getL3CacheMisses
-						       getLocalMemoryBW
-					;getPCUClocks
-						       getRefCycles
-						       getRemoteMemoryBW
-						       getL2CacheHitRatio
-						       getL3CacheHitRatio
-
-						       
-						       getCoreIPC
-						       getTotalExecUsage
-						       getQPItoMCTrafficRatio
-						       getConsumedJoules
-						       getDRAMConsumedJoules
-						       getIPC
-						       getExecUsage
-						       getAverageFrequency
-						       getActiveAverageFrequency
-						       getRelativeFrequency
-						       getActiveRelativeFrequency
-						       getCyclesLostDueL3CacheMisses
-						       getCyclesLostDueL2CacheMisses
-						       getL2CacheHitRatio
-						       getL3CacheHitRatio
-						       ) collect
-					`(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call sstate_before sstate_after))))
-				 ,@(loop for call in `(getPCUFrequency
-						       getMaxIPC
-						       getJoulesPerEnergyUnit
-						       getNominalFrequency
-						       getQPILinksPerSocket
-						       getPCUFrequency
-						       ) collect
-					`(macroexpand (e ,(format nil "~20a = " call) (funcall (slot->value m ,call)))))
-
-				 
-				 (funcall m->cleanup))
+			 #+pcm
+			 (funcall pcm_print m sstate_before)
+			#+pcm (funcall m->cleanup)
 			 (funcall cpu_frequencies_print number_threads)
 			 )
 		       #+nil (let ((f :type "std::ofstream" :ctor (comma-list

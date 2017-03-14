@@ -74,6 +74,169 @@ static void cpu_frequencies_print(unsigned int n) {
   }
 }
 
+static void pcm_init(PCM *m) {
+  {
+    auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
+
+    switch (ret) {
+    case 0: {
+      (std::cout << "pcm init successfull" << std::endl);
+
+      break;
+    }
+    case 1: {
+      (std::cout << "pcm init msr access denied, try running with sudo"
+                 << std::endl);
+
+      break;
+    }
+    case 2: {
+      (std::cout << "pcm init pmu busy" << std::endl);
+
+      m->resetPMU();
+      ret = m->program();
+      break;
+    }
+    default: {
+      (std::cout << "pcm init unknown error" << std::endl);
+
+      break;
+    }
+    }
+  }
+}
+
+static void pcm_print(PCM *m, SystemCounterState &before) {
+  {
+    SystemCounterState after = getSystemCounterState();
+
+    (std::cout << "getBytesReadFromEDC  = "
+               << getBytesReadFromEDC(before, after) << std::endl);
+
+    (std::cout << "getBytesReadFromMC   = " << getBytesReadFromMC(before, after)
+               << std::endl);
+
+    (std::cout << "getBytesWrittenToEDC = "
+               << getBytesWrittenToEDC(before, after) << std::endl);
+
+    (std::cout << "getBytesWrittenToMC  = "
+               << getBytesWrittenToMC(before, after) << std::endl);
+
+    (std::cout << "getConsumedEnergy    = " << getConsumedEnergy(before, after)
+               << std::endl);
+
+    (std::cout << "getCycles            = " << getCycles(before, after)
+               << std::endl);
+
+    (std::cout << "getDRAMConsumedEnergy = "
+               << getDRAMConsumedEnergy(before, after) << std::endl);
+
+    (std::cout << "getIORequestBytesFromMC = "
+               << getIORequestBytesFromMC(before, after) << std::endl);
+
+    (std::cout << "getInstructionsRetired = "
+               << getInstructionsRetired(before, after) << std::endl);
+
+    (std::cout << "getInvariantTSC      = " << getInvariantTSC(before, after)
+               << std::endl);
+
+    (std::cout << "getL2CacheHits       = " << getL2CacheHits(before, after)
+               << std::endl);
+
+    (std::cout << "getL2CacheMisses     = " << getL2CacheMisses(before, after)
+               << std::endl);
+
+    (std::cout << "getL3CacheHits       = " << getL3CacheHits(before, after)
+               << std::endl);
+
+    (std::cout << "getL3CacheHitsNoSnoop = "
+               << getL3CacheHitsNoSnoop(before, after) << std::endl);
+
+    (std::cout << "getL3CacheHitsSnoop  = "
+               << getL3CacheHitsSnoop(before, after) << std::endl);
+
+    (std::cout << "getL3CacheMisses     = " << getL3CacheMisses(before, after)
+               << std::endl);
+
+    (std::cout << "getLocalMemoryBW     = " << getLocalMemoryBW(before, after)
+               << std::endl);
+
+    (std::cout << "getRefCycles         = " << getRefCycles(before, after)
+               << std::endl);
+
+    (std::cout << "getRemoteMemoryBW    = " << getRemoteMemoryBW(before, after)
+               << std::endl);
+
+    (std::cout << "getL2CacheHitRatio   = " << getL2CacheHitRatio(before, after)
+               << std::endl);
+
+    (std::cout << "getL3CacheHitRatio   = " << getL3CacheHitRatio(before, after)
+               << std::endl);
+
+    (std::cout << "getCoreIPC           = " << getCoreIPC(before, after)
+               << std::endl);
+
+    (std::cout << "getTotalExecUsage    = " << getTotalExecUsage(before, after)
+               << std::endl);
+
+    (std::cout << "getQPItoMCTrafficRatio = "
+               << getQPItoMCTrafficRatio(before, after) << std::endl);
+
+    (std::cout << "getConsumedJoules    = " << getConsumedJoules(before, after)
+               << std::endl);
+
+    (std::cout << "getDRAMConsumedJoules = "
+               << getDRAMConsumedJoules(before, after) << std::endl);
+
+    (std::cout << "getIPC               = " << getIPC(before, after)
+               << std::endl);
+
+    (std::cout << "getExecUsage         = " << getExecUsage(before, after)
+               << std::endl);
+
+    (std::cout << "getAverageFrequency  = "
+               << getAverageFrequency(before, after) << std::endl);
+
+    (std::cout << "getActiveAverageFrequency = "
+               << getActiveAverageFrequency(before, after) << std::endl);
+
+    (std::cout << "getRelativeFrequency = "
+               << getRelativeFrequency(before, after) << std::endl);
+
+    (std::cout << "getActiveRelativeFrequency = "
+               << getActiveRelativeFrequency(before, after) << std::endl);
+
+    (std::cout << "getCyclesLostDueL3CacheMisses = "
+               << getCyclesLostDueL3CacheMisses(before, after) << std::endl);
+
+    (std::cout << "getCyclesLostDueL2CacheMisses = "
+               << getCyclesLostDueL2CacheMisses(before, after) << std::endl);
+
+    (std::cout << "getL2CacheHitRatio   = " << getL2CacheHitRatio(before, after)
+               << std::endl);
+
+    (std::cout << "getL3CacheHitRatio   = " << getL3CacheHitRatio(before, after)
+               << std::endl);
+
+    (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
+               << std::endl);
+
+    (std::cout << "getMaxIPC            = " << m->getMaxIPC() << std::endl);
+
+    (std::cout << "getJoulesPerEnergyUnit = " << m->getJoulesPerEnergyUnit()
+               << std::endl);
+
+    (std::cout << "getNominalFrequency  = " << m->getNominalFrequency()
+               << std::endl);
+
+    (std::cout << "getQPILinksPerSocket = " << m->getQPILinksPerSocket()
+               << std::endl);
+
+    (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
+               << std::endl);
+  }
+}
+
 int main() {
   {
     const int number_threads = 4;
@@ -122,36 +285,7 @@ int main() {
       tbb::task_scheduler_init tbb_init(number_threads);
       static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
-      {
-        auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
-
-        switch (ret) {
-        case 0: {
-          (std::cout << "pcm init successfull" << std::endl);
-
-          break;
-        }
-        case 1: {
-          (std::cout << "pcm init msr access denied, try running with sudo"
-                     << std::endl);
-
-          break;
-        }
-        case 2: {
-          (std::cout << "pcm init pmu busy" << std::endl);
-
-          m->resetPMU();
-          ret = m->program();
-          break;
-        }
-        default: {
-          (std::cout << "pcm init unknown error" << std::endl);
-
-          break;
-        }
-        }
-      }
-
+      pcm_init(m);
       {
         SystemCounterState sstate_before = getSystemCounterState();
 
@@ -168,171 +302,8 @@ int main() {
           }
         }
 
-        {
-          SystemCounterState sstate_after = getSystemCounterState();
-
-          (std::cout << "getBytesReadFromEDC  = "
-                     << getBytesReadFromEDC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getBytesReadFromMC   = "
-                     << getBytesReadFromMC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getBytesWrittenToEDC = "
-                     << getBytesWrittenToEDC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getBytesWrittenToMC  = "
-                     << getBytesWrittenToMC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getConsumedEnergy    = "
-                     << getConsumedEnergy(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getCycles            = "
-                     << getCycles(sstate_before, sstate_after) << std::endl);
-
-          (std::cout << "getDRAMConsumedEnergy = "
-                     << getDRAMConsumedEnergy(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getIORequestBytesFromMC = "
-                     << getIORequestBytesFromMC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getInstructionsRetired = "
-                     << getInstructionsRetired(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getInvariantTSC      = "
-                     << getInvariantTSC(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL2CacheHits       = "
-                     << getL2CacheHits(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL2CacheMisses     = "
-                     << getL2CacheMisses(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheHits       = "
-                     << getL3CacheHits(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheHitsNoSnoop = "
-                     << getL3CacheHitsNoSnoop(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheHitsSnoop  = "
-                     << getL3CacheHitsSnoop(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheMisses     = "
-                     << getL3CacheMisses(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getLocalMemoryBW     = "
-                     << getLocalMemoryBW(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getRefCycles         = "
-                     << getRefCycles(sstate_before, sstate_after) << std::endl);
-
-          (std::cout << "getRemoteMemoryBW    = "
-                     << getRemoteMemoryBW(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL2CacheHitRatio   = "
-                     << getL2CacheHitRatio(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheHitRatio   = "
-                     << getL3CacheHitRatio(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getCoreIPC           = "
-                     << getCoreIPC(sstate_before, sstate_after) << std::endl);
-
-          (std::cout << "getTotalExecUsage    = "
-                     << getTotalExecUsage(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getQPItoMCTrafficRatio = "
-                     << getQPItoMCTrafficRatio(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getConsumedJoules    = "
-                     << getConsumedJoules(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getDRAMConsumedJoules = "
-                     << getDRAMConsumedJoules(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getIPC               = "
-                     << getIPC(sstate_before, sstate_after) << std::endl);
-
-          (std::cout << "getExecUsage         = "
-                     << getExecUsage(sstate_before, sstate_after) << std::endl);
-
-          (std::cout << "getAverageFrequency  = "
-                     << getAverageFrequency(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getActiveAverageFrequency = "
-                     << getActiveAverageFrequency(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getRelativeFrequency = "
-                     << getRelativeFrequency(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getActiveRelativeFrequency = "
-                     << getActiveRelativeFrequency(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getCyclesLostDueL3CacheMisses = "
-                     << getCyclesLostDueL3CacheMisses(sstate_before,
-                                                      sstate_after)
-                     << std::endl);
-
-          (std::cout << "getCyclesLostDueL2CacheMisses = "
-                     << getCyclesLostDueL2CacheMisses(sstate_before,
-                                                      sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL2CacheHitRatio   = "
-                     << getL2CacheHitRatio(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getL3CacheHitRatio   = "
-                     << getL3CacheHitRatio(sstate_before, sstate_after)
-                     << std::endl);
-
-          (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
-                     << std::endl);
-
-          (std::cout << "getMaxIPC            = " << m->getMaxIPC()
-                     << std::endl);
-
-          (std::cout << "getJoulesPerEnergyUnit = "
-                     << m->getJoulesPerEnergyUnit() << std::endl);
-
-          (std::cout << "getNominalFrequency  = " << m->getNominalFrequency()
-                     << std::endl);
-
-          (std::cout << "getQPILinksPerSocket = " << m->getQPILinksPerSocket()
-                     << std::endl);
-
-          (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
-                     << std::endl);
-
-          m->cleanup();
-        }
-
+        pcm_print(m, sstate_before);
+        m->cleanup();
         cpu_frequencies_print(number_threads);
       }
 

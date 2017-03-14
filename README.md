@@ -5,6 +5,8 @@ https://software.intel.com/en-us/articles/intel-performance-counter-monitor#call
 ```
 cd ~/src/
 git clone https://github.com/opcm/pcm
+cd pcm
+make
 cd pcm.so
 make
 ```
