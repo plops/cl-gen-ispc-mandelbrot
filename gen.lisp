@@ -17,7 +17,7 @@
 
 
 
-(let ((max-iterations 16)
+(let ((max-iterations 256)
       (width 512)
       (height 512)
       (grain-rows 64)
@@ -323,7 +323,7 @@
 		       (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 			 
 			 (dotimes (i
-				    10000)
+				    100)
 			   #+nil (funcall "ispc::mandelbrot_ispc"
 					  x0 y0
 					  dx dy

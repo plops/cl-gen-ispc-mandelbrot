@@ -25,3 +25,7 @@ make
 https://technicalandstuff.wordpress.com/2015/05/15/using-intels-pcm-in-linux-and-inside-c/
 
 https://www.youtube.com/watch?v=h2QEM1HpFgg Roofline Analysis in Intel Advisor 2017
+
+https://jeffamstutz.io/2017/02/17/thread-parallelism-part-3-a-very-brief-look-at-performance/
+
+https://overcast.fm/+EN2YtNcSc Software Defined Visualization with Jeff Amstutz

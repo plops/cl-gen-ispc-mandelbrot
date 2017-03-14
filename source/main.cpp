@@ -57,7 +57,7 @@ static void cpu_setaffinity(const unsigned int number_threads) {
     // can be started;
     prio.sched_priority = 1;
     {
-      int err = sched_setscheduler(0, SCHED_BATCH, &prio);
+      int err = sched_setscheduler(0, SCHED_RR, &prio);
 
       if ((0 != err)) {
         (std::cout << "setscheduler error" << std::endl);
@@ -280,7 +280,7 @@ int main() {
       {
         SystemCounterState sstate_before = getSystemCounterState();
 
-        for (unsigned int i = 0; (i < 10000); i += 1) {
+        for (unsigned int i = 0; (i < 100); i += 1) {
           {
 
             tbb::parallel_for(

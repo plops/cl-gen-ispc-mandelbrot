@@ -4,7 +4,7 @@ static inline int mandel(float c_re, float c_im) {
     float z_im = c_im;
     int ret = 0;
 
-    for (unsigned int i = 0; (i < 16); i += 1) {
+    for (unsigned int i = 0; (i < 256); i += 1) {
       {
         float re2 = (z_re * z_re);
         float im2 = (z_im * z_im);
