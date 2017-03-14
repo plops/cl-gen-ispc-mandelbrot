@@ -188,6 +188,22 @@
 			     (line :type "std::string"))
 			 (funcall "std::getline" f line)
 			 (macroexpand (e "processor " i " runs at " line " Hz"))))))
+	 (function (cpu_setaffinity ((number_threads :type "const unsigned int")) "static void")
+			       (let ((cpu_mask :type cpu_set_t))
+				 (funcall CPU_ZERO &cpu_mask)
+				 (dotimes (i number_threads)
+				   (funcall CPU_SET i &cpu_mask))
+				 (let ((err :type int :init (funcall sched_setaffinity (funcall getpid) (funcall sizeof cpu_mask) &cpu_mask)))
+				   (if (!= 0 err)
+				       (macroexpand (e "setaffinity error")))
+				   (macroexpand (e "tried to use " number_threads
+						   " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
+						   (funcall "tbb::task_scheduler_init::default_num_threads")
+						   " tbb::tbb_thread::hardware_concurrency="
+						   (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
+				   
+				   (funcall cpu_frequencies_print number_threads)
+				   )))
 	 #+pcm
 	 (function (pcm_init ((m :type PCM*)) "static void")
 				 (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
@@ -261,22 +277,10 @@
 		   
 		   (let ((number_threads :type "const int" :init 4))
 		     (dotimes (i number_threads)
+		       (raw "// set the cpus to the same frequency")
 		       (funcall cpu_frequency_set i 2000000))
-		     (let ((cpu_mask :type cpu_set_t))
-		       (funcall CPU_ZERO &cpu_mask)
-		       (dotimes (i number_threads)
-			 (funcall CPU_SET i &cpu_mask))
-		       (let ((err :type int :init (funcall sched_setaffinity (funcall getpid) (funcall sizeof cpu_mask) &cpu_mask)))
-			 (if (!= 0 err)
-			     (macroexpand (e "setaffinity error")))
-			 (macroexpand (e "tried to use " number_threads
-					 " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
-					 (funcall "tbb::task_scheduler_init::default_num_threads")
-					 " tbb::tbb_thread::hardware_concurrency="
-					 (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
-			 
-			 (funcall cpu_frequencies_print number_threads)
-			 ))
+		     (funcall cpu_setaffinity number_threads)
+		     
 		     (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
 				 (width :type "const unsigned int" :init ,width)
 				 (height :type "const unsigned int" :init ,height)

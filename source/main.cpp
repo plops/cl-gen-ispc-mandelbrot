@@ -74,6 +74,35 @@ static void cpu_frequencies_print(unsigned int n) {
   }
 }
 
+static void cpu_setaffinity(const unsigned int number_threads) {
+  {
+    cpu_set_t cpu_mask;
+
+    CPU_ZERO(&cpu_mask);
+    for (unsigned int i = 0; (i < number_threads); i += 1) {
+      CPU_SET(i, &cpu_mask);
+    }
+
+    {
+      int err = sched_setaffinity(getpid(), sizeof(cpu_mask), &cpu_mask);
+
+      if ((0 != err)) {
+        (std::cout << "setaffinity error" << std::endl);
+      }
+
+      (std::cout
+       << "tried to use " << number_threads
+       << " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
+       << tbb::task_scheduler_init::default_num_threads()
+       << " tbb::tbb_thread::hardware_concurrency="
+       << static_cast<int>(tbb::tbb_thread::hardware_concurrency())
+       << std::endl);
+
+      cpu_frequencies_print(number_threads);
+    }
+  }
+}
+
 static void pcm_init(PCM *m) {
   {
     auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
@@ -242,36 +271,11 @@ int main() {
     const int number_threads = 4;
 
     for (unsigned int i = 0; (i < number_threads); i += 1) {
+      // set the cpus to the same frequency;
       cpu_frequency_set(i, 2000000);
     }
 
-    {
-      cpu_set_t cpu_mask;
-
-      CPU_ZERO(&cpu_mask);
-      for (unsigned int i = 0; (i < number_threads); i += 1) {
-        CPU_SET(i, &cpu_mask);
-      }
-
-      {
-        int err = sched_setaffinity(getpid(), sizeof(cpu_mask), &cpu_mask);
-
-        if ((0 != err)) {
-          (std::cout << "setaffinity error" << std::endl);
-        }
-
-        (std::cout << "tried to use " << number_threads
-                   << " tbb worker threads. "
-                      "tbb::task_scheduler_init::default_num_threads="
-                   << tbb::task_scheduler_init::default_num_threads()
-                   << " tbb::tbb_thread::hardware_concurrency="
-                   << static_cast<int>(tbb::tbb_thread::hardware_concurrency())
-                   << std::endl);
-
-        cpu_frequencies_print(number_threads);
-      }
-    }
-
+    cpu_setaffinity(number_threads);
     {
       PCM *m = PCM::getInstance();
       const unsigned int width = 512;
