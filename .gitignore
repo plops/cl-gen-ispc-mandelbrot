@@ -1,0 +1,6 @@
+*~
+*.html
+source/main
+source/mandelbrot_ispc.o
+*.fasl
+.#*
