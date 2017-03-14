@@ -47,7 +47,7 @@
 	 ;(include <sched.h>)
 	 (include <fstream>)
 	 ;(include <sstream>)
-	 (extern-c
+	 #+nil (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
 				     (line :type int)
@@ -135,7 +135,7 @@
 	 ;; };
 
 	 
-	 (function (rdtsc () uint64_t)
+	 #+nil (function (rdtsc () uint64_t)
 		   (let ((low :type uint32_t)
 			 (high :type uint32_t))
 		     (raw "__asm__ __volatile__ (\"xorl %%eax,%%eax \\n cpuid\"
@@ -205,15 +205,17 @@
 				   (funcall cpu_frequencies_print number_threads)
 				   )))
 	 #+pcm
-	 (function (pcm_init ((m :type PCM*)) "static void")
-				 (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
-				   (case ret
-				     ("PCM::Success" (macroexpand (e "pcm init successfull")))
-				     ("PCM::MSRAccessDenied" (macroexpand (e "pcm init msr access denied, try running with sudo")))
-				     ("PCM::PMUBusy" (macroexpand (e "pcm init pmu busy"))
+	 (function (pcm_init ((m :type PCM*) (count :type int :default 3)) "static void")
+		   (if (< 0 count)
+		    (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
+		      (case ret
+			("PCM::Success" (macroexpand (e "pcm init successfull")))
+			("PCM::MSRAccessDenied" (macroexpand (e "pcm init msr access denied, try running with sudo")))
+			("PCM::PMUBusy" (macroexpand (e "pcm init pmu busy"))
 					(funcall m->resetPMU)
-					(setf ret (funcall m->program)))
-				     ("PCM::UnknownError" (macroexpand (e "pcm init unknown error"))))))
+					(raw "// count indicates how many times we tried to reset")
+					(funcall pcm_init m (- count 1)))
+			("PCM::UnknownError" (macroexpand (e "pcm init unknown error")))))))
 	 #+pcm (function (pcm_print ((m :type PCM*)
 				     (before :type SystemCounterState&)
 				     )

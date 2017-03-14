@@ -3,25 +3,6 @@
 #include <cpucounters.h>
 #include <fstream>
 #include <tbb/tbb.h>
-extern "C" {
-void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
-  (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
-             << std::endl);
-}
-} // extern "C"
-
-uint64_t rdtsc() {
-  {
-    uint32_t low;
-    uint32_t high;
-
-    __asm__ __volatile__("xorl %%eax,%%eax \n cpuid" ::
-                             : "%rax", "%rbx", "%rcx", "%rdx");
-    __asm__ __volatile__("rdtsc" : "=a"(low), "=d"(high));
-    return ((static_cast<uint64_t>(high) << 32) | low);
-  }
-}
-
 static void sys_file_write(std::string fn, std::string str) {
   {
     std::ofstream f(fn);
@@ -96,34 +77,37 @@ static void cpu_setaffinity(const unsigned int number_threads) {
   }
 }
 
-static void pcm_init(PCM *m) {
-  {
-    auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
+static void pcm_init(PCM *m, int count = 3) {
+  if ((0 < count)) {
+    {
+      auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
 
-    switch (ret) {
-    case PCM::Success: {
-      (std::cout << "pcm init successfull" << std::endl);
+      switch (ret) {
+      case PCM::Success: {
+        (std::cout << "pcm init successfull" << std::endl);
 
-      break;
-    }
-    case PCM::MSRAccessDenied: {
-      (std::cout << "pcm init msr access denied, try running with sudo"
-                 << std::endl);
+        break;
+      }
+      case PCM::MSRAccessDenied: {
+        (std::cout << "pcm init msr access denied, try running with sudo"
+                   << std::endl);
 
-      break;
-    }
-    case PCM::PMUBusy: {
-      (std::cout << "pcm init pmu busy" << std::endl);
+        break;
+      }
+      case PCM::PMUBusy: {
+        (std::cout << "pcm init pmu busy" << std::endl);
 
-      m->resetPMU();
-      ret = m->program();
-      break;
-    }
-    case PCM::UnknownError: {
-      (std::cout << "pcm init unknown error" << std::endl);
+        m->resetPMU();
+        // count indicates how many times we tried to reset;
+        pcm_init(m, (count - 1));
+        break;
+      }
+      case PCM::UnknownError: {
+        (std::cout << "pcm init unknown error" << std::endl);
 
-      break;
-    }
+        break;
+      }
+      }
     }
   }
 }
