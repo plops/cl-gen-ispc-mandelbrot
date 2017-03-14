@@ -2,21 +2,21 @@
 
 
 https://software.intel.com/en-us/articles/intel-performance-counter-monitor#calling_pcm
-
+```
 cd ~/src/
 git clone https://github.com/opcm/pcm
 cd pcm.so
 make
+```
+
+- L3 cache is global and shared by all cores and counters are not tracking the specific thread's IP
+
+- set affinity or pin your threads to specific logical CPU
 
 
-L3 cache is global and shared by all cores and counters are not tracking the specific thread's IP
+- taskset
 
-set affinity or pin your threads to specific logical CPU
-
-
-taskset
-
-isolcpus=0,1
+- /etc/default/grub: `GRUB_CMDLINE_LINUX="isolcpus=0,1,2,3"`
 
 # References
 
