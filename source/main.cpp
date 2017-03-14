@@ -1,15 +1,15 @@
-#include <fstream>
-#include <algorithm>
-#include <type_traits>
-#include <iostream>
 #include "mandelbrot_ispc.h"
-#include <stdint.h>
-#include <tbb/tbb.h>
+#include <algorithm>
 #include <cpucounters.h>
-#include <sys/sysinfo.h>
-#include <sched.h>
 #include <fstream>
+#include <fstream>
+#include <iostream>
+#include <sched.h>
 #include <sstream>
+#include <stdint.h>
+#include <sys/sysinfo.h>
+#include <tbb/tbb.h>
+#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -268,7 +268,7 @@ static void pcm_print(PCM *m, SystemCounterState &before) {
 
 int main() {
   {
-    const int number_threads = 4;
+    const int number_threads = 8;
 
     for (unsigned int i = 0; (i < number_threads); i += 1) {
       // set the cpus to the same frequency;
@@ -293,7 +293,7 @@ int main() {
       {
         SystemCounterState sstate_before = getSystemCounterState();
 
-        for (unsigned int i = 0; (i < 1); i += 1) {
+        for (unsigned int i = 0; (i < 100); i += 1) {
           {
 
             tbb::parallel_for(

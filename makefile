@@ -1,7 +1,8 @@
 #CXX=/opt/intel/compilers_and_libraries/linux/bin/intel64/icc
 #CXX=clang++
-CXX=g++
-CXXFLAGS=-g -O3  -fstack-protector-strong -fident -fno-lto -fasynchronous-unwind-tables -Wall -Wextra -pedantic-errors -Wsign-promo -Wnon-virtual-dtor -Winit-self -Wno-deprecated-declarations -pipe -D_FILE_OFFSET_BITS=64 -march=native   -ffast-math --std=c++11
+CXX=clang++-4.0
+#CXX=g++
+CXXFLAGS=-g -O3  -fstack-protector-strong -fident -fno-lto -fasynchronous-unwind-tables -Wall -Wextra -pedantic-errors -Wsign-promo -Wnon-virtual-dtor -Winit-self -Wno-deprecated-declarations -pipe -D_FILE_OFFSET_BITS=64 -march=native   -ffast-math --std=c++11 -Wno-nested-anon-types
 
 #--std=gnu++1z
 

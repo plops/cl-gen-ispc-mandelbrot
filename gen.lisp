@@ -275,7 +275,7 @@
 	 (function (main ()
 			 int)
 		   
-		   (let ((number_threads :type "const int" :init 4))
+		   (let ((number_threads :type "const int" :init 8))
 		     (dotimes (i number_threads)
 		       (raw "// set the cpus to the same frequency")
 		       (funcall cpu_frequency_set i 2000000))
@@ -309,7 +309,7 @@
 		       (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 			 
 			 (dotimes (i
-				    1)
+				    100)
 			   #+nil (funcall "ispc::mandelbrot_ispc"
 					  x0 y0
 					  dx dy
