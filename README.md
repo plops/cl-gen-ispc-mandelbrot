@@ -28,4 +28,4 @@ https://www.youtube.com/watch?v=h2QEM1HpFgg Roofline Analysis in Intel Advisor 2
 
 https://jeffamstutz.io/2017/02/17/thread-parallelism-part-3-a-very-brief-look-at-performance/
 
-https://overcast.fm/+EN2YtNcSc Software Defined Visualization with Jeff Amstutz
+https://overcast.fm/+EN2YtNcSc Software Defined Visualization with Jeff Amstutz (starts at 12:16)
