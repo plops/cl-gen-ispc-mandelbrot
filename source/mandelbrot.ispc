@@ -9,14 +9,14 @@ static inline int mandel(float c_re, float c_im) {
         float re2 = (z_re * z_re);
         float im2 = (z_im * z_im);
 
-        if (((4.e+0) < (re2 + im2))) {
+        if (((4.e+0f) < (re2 + im2))) {
           ret = i;
           break;
         }
 
         {
           float new_re = ((z_re * z_re) - (z_im * z_im));
-          float new_im = ((2.e+0) * z_re * z_im);
+          float new_im = ((2.e+0f) * z_re * z_im);
 
           z_re = (c_re + new_re);
           z_im = (c_im + new_im);

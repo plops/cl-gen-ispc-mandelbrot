@@ -2,14 +2,7 @@
 #include <algorithm>
 #include <cpucounters.h>
 #include <fstream>
-#include <fstream>
-#include <iostream>
-#include <sched.h>
-#include <sstream>
-#include <stdint.h>
-#include <sys/sysinfo.h>
 #include <tbb/tbb.h>
-#include <type_traits>
 extern "C" {
 void ISPCInstrument(const char *fn, const char *note, int line, uint64_t mask) {
   (std::cout << fn << ":" << line << " - " << note << ", 0x" << std::hex << mask
@@ -108,25 +101,25 @@ static void pcm_init(PCM *m) {
     auto ret = m->program(PCM::DEFAULT_EVENTS, nullptr);
 
     switch (ret) {
-    case 0: {
+    case PCM::Success: {
       (std::cout << "pcm init successfull" << std::endl);
 
       break;
     }
-    case 1: {
+    case PCM::MSRAccessDenied: {
       (std::cout << "pcm init msr access denied, try running with sudo"
                  << std::endl);
 
       break;
     }
-    case 2: {
+    case PCM::PMUBusy: {
       (std::cout << "pcm init pmu busy" << std::endl);
 
       m->resetPMU();
       ret = m->program();
       break;
     }
-    default: {
+    case PCM::UnknownError: {
       (std::cout << "pcm init unknown error" << std::endl);
 
       break;
@@ -280,12 +273,12 @@ int main() {
       PCM *m = PCM::getInstance();
       const unsigned int width = 512;
       const unsigned int height = 512;
-      float x0 = (-2.e+0);
-      float x1 = (1.e+0);
-      float y0 = (-1.e+0);
-      float y1 = (1.e+0);
-      float dx = ((x1 - x0) * ((1.e+0) / 512));
-      float dy = ((y1 - y0) * ((1.e+0) / 512));
+      float x0 = (-2.e+0f);
+      float x1 = (1.e+0f);
+      float y0 = (-1.e+0f);
+      float y1 = (1.e+0f);
+      float dx = ((x1 - x0) * ((1.e+0f) / 512));
+      float dy = ((y1 - y0) * ((1.e+0f) / 512));
       tbb::task_scheduler_init tbb_init(number_threads);
       static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 

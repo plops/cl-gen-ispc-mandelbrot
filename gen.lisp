@@ -35,18 +35,18 @@
       :clear-env t
       :code
       `(with-compilation-unit
-	   (include <fstream>)
+	   
 	 (include <algorithm>)
-	 (include <type_traits>)
-	 (include <iostream>)
+	 ;(include <type_traits>)
+	 ;(include <iostream>)
 	 (include "mandelbrot_ispc.h")
-	 (include <stdint.h>)
+	 ;(include <stdint.h>)
 	 (include <tbb/tbb.h>)
 	 (include <cpucounters.h>)
-	 (include <sys/sysinfo.h>)
-	 (include <sched.h>)
+	 ;(include <sys/sysinfo.h>)
+	 ;(include <sched.h>)
 	 (include <fstream>)
-	 (include <sstream>)
+	 ;(include <sstream>)
 	 (extern-c
 	  (function (ISPCInstrument ((fn :type "const char*")
 				     (note :type "const char*")
@@ -208,12 +208,12 @@
 	 (function (pcm_init ((m :type PCM*)) "static void")
 				 (let ((ret :init (funcall m->program "PCM::DEFAULT_EVENTS" nullptr)))
 				   (case ret
-				     (0 (macroexpand (e "pcm init successfull")))
-				     (1 (macroexpand (e "pcm init msr access denied, try running with sudo")))
-				     (2 (macroexpand (e "pcm init pmu busy"))
+				     ("PCM::Success" (macroexpand (e "pcm init successfull")))
+				     ("PCM::MSRAccessDenied" (macroexpand (e "pcm init msr access denied, try running with sudo")))
+				     ("PCM::PMUBusy" (macroexpand (e "pcm init pmu busy"))
 					(funcall m->resetPMU)
 					(setf ret (funcall m->program)))
-				     (t (macroexpand (e "pcm init unknown error"))))))
+				     ("PCM::UnknownError" (macroexpand (e "pcm init unknown error"))))))
 	 #+pcm (function (pcm_print ((m :type PCM*)
 				     (before :type SystemCounterState&)
 				     )
@@ -284,12 +284,12 @@
 		     (let (#+pcm (m :type "PCM*" :init (funcall "PCM::getInstance"))
 				 (width :type "const unsigned int" :init ,width)
 				 (height :type "const unsigned int" :init ,height)
-				 (x0 :type float :init -2.0)
-				 (x1 :type float :init 1.0)
-				 (y0 :type float :init -1.0)
-				 (y1 :type float :init 1.0)
-				 (dx :type float :init (* (- x1 x0) (/ 1.0 ,width )))
-				 (dy :type float :init (* (- y1 y0) (/ 1.0 ,height)))
+				 (x0 :type float :init -2s0)
+				 (x1 :type float :init 1s0)
+				 (y0 :type float :init -1s0)
+				 (y1 :type float :init 1s0)
+				 (dx :type float :init (* (- x1 x0) (/ 1s0 ,width )))
+				 (dy :type float :init (* (- y1 y0) (/ 1s0 ,height)))
 				 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
 				 ;; buf should be aligned to 64 byte boundary
 				 (tbb_init :type "tbb::task_scheduler_init" :ctor (comma-list number_threads)) ;; explicit number of threads
