@@ -189,21 +189,32 @@
 			 (funcall "std::getline" f line)
 			 (macroexpand (e "processor " i " runs at " line " Hz"))))))
 	 (function (cpu_setaffinity ((number_threads :type "const unsigned int")) "static void")
-			       (let ((cpu_mask :type cpu_set_t))
-				 (funcall CPU_ZERO &cpu_mask)
-				 (dotimes (i number_threads)
-				   (funcall CPU_SET i &cpu_mask))
-				 (let ((err :type int :init (funcall sched_setaffinity (funcall getpid) (funcall sizeof cpu_mask) &cpu_mask)))
-				   (if (!= 0 err)
-				       (macroexpand (e "setaffinity error")))
-				   (macroexpand (e "tried to use " number_threads
-						   " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
-						   (funcall "tbb::task_scheduler_init::default_num_threads")
-						   " tbb::tbb_thread::hardware_concurrency="
-						   (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
-				   
-				   (funcall cpu_frequencies_print number_threads)
-				   )))
+		   
+		   (let ((prio :type sched_param))
+		     (raw "// in order to run on isolcpus we need to set scheduler")
+		     (raw "// if 4 cpu's were isolated at boot, then only this number of tbb workers can be started")
+		     (setf prio.sched_priority 1)
+		     ;; FIFO, RR breaks firefox playing
+		     (let ((err :type :int :init (funcall sched_setscheduler 0 SCHED_RR &prio)))
+		       (if (!= 0 err)
+			   (macroexpand (e "setscheduler error")))))
+		   
+		   (let ((cpu_mask :type cpu_set_t))
+		     
+		     (funcall CPU_ZERO &cpu_mask)
+		     (dotimes (i number_threads)
+		       (funcall CPU_SET i &cpu_mask))
+		     (let ((err :type int :init (funcall sched_setaffinity (funcall getpid) (funcall sizeof cpu_mask) &cpu_mask)))
+		       (if (!= 0 err)
+			   (macroexpand (e "setaffinity error")))
+		       (macroexpand (e "tried to use " number_threads
+				       " tbb worker threads. tbb::task_scheduler_init::default_num_threads="
+				       (funcall "tbb::task_scheduler_init::default_num_threads")
+				       " tbb::tbb_thread::hardware_concurrency="
+				       (funcall static_cast<int> (funcall "tbb::tbb_thread::hardware_concurrency"))))
+		       
+		       (funcall cpu_frequencies_print number_threads)
+		       )))
 	 #+pcm
 	 (function (pcm_init ((m :type PCM*) (count :type int :default 3)) "static void")
 		   (if (< 0 count)
@@ -245,23 +256,24 @@
 							   getRemoteMemoryBW
 							   getL2CacheHitRatio
 							   getL3CacheHitRatio
-
+							   getCyclesLostDueL3CacheMisses
+							   getCyclesLostDueL2CacheMisses
 							   
+							   
+							   getIPC
 							   getCoreIPC
 							   getTotalExecUsage
-							   getQPItoMCTrafficRatio
+							   
 							   getConsumedJoules
+							   getQPItoMCTrafficRatio
+							   
 							   getDRAMConsumedJoules
-							   getIPC
+							   
 							   getExecUsage
 							   getAverageFrequency
 							   getActiveAverageFrequency
 							   getRelativeFrequency
 							   getActiveRelativeFrequency
-							   getCyclesLostDueL3CacheMisses
-							   getCyclesLostDueL2CacheMisses
-							   getL2CacheHitRatio
-							   getL3CacheHitRatio
 							   ) collect
 					    `(macroexpand (e ,(format nil "~20a = " call)  (funcall ,call before after))))
 				     ,@(loop for call in `(getPCUFrequency
@@ -277,7 +289,7 @@
 	 (function (main ()
 			 int)
 		   
-		   (let ((number_threads :type "const int" :init 8))
+		   (let ((number_threads :type "const int" :init 4))
 		     (dotimes (i number_threads)
 		       (raw "// set the cpus to the same frequency")
 		       (funcall cpu_frequency_set i 2000000))
@@ -290,8 +302,8 @@
 				 (x1 :type float :init 1s0)
 				 (y0 :type float :init -1s0)
 				 (y1 :type float :init 1s0)
-				 (dx :type float :init (* (- x1 x0) (/ 1s0 ,width )))
-				 (dy :type float :init (* (- y1 y0) (/ 1s0 ,height)))
+				 (dx :type float :init (* (- x1 x0) (/ 1s0 width )))
+				 (dy :type float :init (* (- y1 y0) (/ 1s0 height)))
 				 ;; https://software.intel.com/en-us/articles/data-alignment-to-assist-vectorization
 				 ;; buf should be aligned to 64 byte boundary
 				 (tbb_init :type "tbb::task_scheduler_init" :ctor (comma-list number_threads)) ;; explicit number of threads
@@ -311,7 +323,7 @@
 		       (let (#+pcm (sstate_before :type SystemCounterState :init (funcall getSystemCounterState)))
 			 
 			 (dotimes (i
-				    100)
+				    10000)
 			   #+nil (funcall "ispc::mandelbrot_ispc"
 					  x0 y0
 					  dx dy

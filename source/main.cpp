@@ -50,6 +50,22 @@ static void cpu_frequencies_print(unsigned int n) {
 
 static void cpu_setaffinity(const unsigned int number_threads) {
   {
+    sched_param prio;
+
+    // in order to run on isolcpus we need to set scheduler;
+    // if 4 cpu's were isolated at boot, then only this number of tbb workers
+    // can be started;
+    prio.sched_priority = 1;
+    {
+      int err = sched_setscheduler(0, SCHED_BATCH, &prio);
+
+      if ((0 != err)) {
+        (std::cout << "setscheduler error" << std::endl);
+      }
+    }
+  }
+
+  {
     cpu_set_t cpu_mask;
 
     CPU_ZERO(&cpu_mask);
@@ -179,23 +195,29 @@ static void pcm_print(PCM *m, SystemCounterState &before) {
     (std::cout << "getL3CacheHitRatio   = " << getL3CacheHitRatio(before, after)
                << std::endl);
 
+    (std::cout << "getCyclesLostDueL3CacheMisses = "
+               << getCyclesLostDueL3CacheMisses(before, after) << std::endl);
+
+    (std::cout << "getCyclesLostDueL2CacheMisses = "
+               << getCyclesLostDueL2CacheMisses(before, after) << std::endl);
+
+    (std::cout << "getIPC               = " << getIPC(before, after)
+               << std::endl);
+
     (std::cout << "getCoreIPC           = " << getCoreIPC(before, after)
                << std::endl);
 
     (std::cout << "getTotalExecUsage    = " << getTotalExecUsage(before, after)
                << std::endl);
 
-    (std::cout << "getQPItoMCTrafficRatio = "
-               << getQPItoMCTrafficRatio(before, after) << std::endl);
-
     (std::cout << "getConsumedJoules    = " << getConsumedJoules(before, after)
                << std::endl);
 
+    (std::cout << "getQPItoMCTrafficRatio = "
+               << getQPItoMCTrafficRatio(before, after) << std::endl);
+
     (std::cout << "getDRAMConsumedJoules = "
                << getDRAMConsumedJoules(before, after) << std::endl);
-
-    (std::cout << "getIPC               = " << getIPC(before, after)
-               << std::endl);
 
     (std::cout << "getExecUsage         = " << getExecUsage(before, after)
                << std::endl);
@@ -211,18 +233,6 @@ static void pcm_print(PCM *m, SystemCounterState &before) {
 
     (std::cout << "getActiveRelativeFrequency = "
                << getActiveRelativeFrequency(before, after) << std::endl);
-
-    (std::cout << "getCyclesLostDueL3CacheMisses = "
-               << getCyclesLostDueL3CacheMisses(before, after) << std::endl);
-
-    (std::cout << "getCyclesLostDueL2CacheMisses = "
-               << getCyclesLostDueL2CacheMisses(before, after) << std::endl);
-
-    (std::cout << "getL2CacheHitRatio   = " << getL2CacheHitRatio(before, after)
-               << std::endl);
-
-    (std::cout << "getL3CacheHitRatio   = " << getL3CacheHitRatio(before, after)
-               << std::endl);
 
     (std::cout << "getPCUFrequency      = " << m->getPCUFrequency()
                << std::endl);
@@ -245,7 +255,7 @@ static void pcm_print(PCM *m, SystemCounterState &before) {
 
 int main() {
   {
-    const int number_threads = 8;
+    const int number_threads = 4;
 
     for (unsigned int i = 0; (i < number_threads); i += 1) {
       // set the cpus to the same frequency;
@@ -261,8 +271,8 @@ int main() {
       float x1 = (1.e+0f);
       float y0 = (-1.e+0f);
       float y1 = (1.e+0f);
-      float dx = ((x1 - x0) * ((1.e+0f) / 512));
-      float dy = ((y1 - y0) * ((1.e+0f) / 512));
+      float dx = ((x1 - x0) * ((1.e+0f) / width));
+      float dy = ((y1 - y0) * ((1.e+0f) / height));
       tbb::task_scheduler_init tbb_init(number_threads);
       static int buf[(32 + (width * height))] __attribute__((aligned(64)));
 
@@ -270,7 +280,7 @@ int main() {
       {
         SystemCounterState sstate_before = getSystemCounterState();
 
-        for (unsigned int i = 0; (i < 100); i += 1) {
+        for (unsigned int i = 0; (i < 10000); i += 1) {
           {
 
             tbb::parallel_for(
