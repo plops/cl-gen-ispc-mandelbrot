@@ -155,11 +155,11 @@ int main() {
       {
         SystemCounterState sstate_before = getSystemCounterState();
 
-        for (unsigned int i = 0; (i < 1000); i += 1) {
+        for (unsigned int i = 0; (i < 1); i += 1) {
           {
 
             tbb::parallel_for(
-                tbb::blocked_range2d<int, int>(0, 512, 2, 0, 512, 512),
+                tbb::blocked_range2d<int, int>(0, 512, 2, 0, 512, 64),
                 [=](const tbb::blocked_range2d<int, int> &r) {
                   ispc::mandelbrot_ispc(x0, y0, dx, dy, buf, r.rows().begin(),
                                         r.cols().begin(), r.rows().end(),
